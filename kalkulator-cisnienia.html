@@ -10,51 +10,28 @@
 <style>
 :root{
   --bg:#ffffff;
-  --bg-alt:#f6f7f9;
+  --bg-alt:#f5f6f8;
   --bg-elev:#ffffff;
-  --fg:#101418;
+  --fg:#1a1a1a;
   --fg-soft:#4a5260;
   --fg-mute:#7a8290;
-  --border:#e4e7ec;
-  --border-strong:#cdd3da;
-  --accent:#0e7c66;
-  --accent-soft:#e6f4f0;
+  --border:#e2e5ea;
+  --border-strong:#c8cdd6;
+  --accent:#d94f00;
+  --accent-soft:#fff0e8;
   --accent-fg:#ffffff;
-  --warn-red:#b3261e;
+  --warn-red:#c0392b;
   --warn-red-bg:#fdecea;
   --warn-orange:#a85e00;
   --warn-orange-bg:#fff3e0;
   --warn-yellow:#7a5b00;
   --warn-yellow-bg:#fff8d6;
-  --info-blue:#0a558c;
+  --info-blue:#1a5f8c;
   --info-blue-bg:#e6f1fa;
-  --radius:8px;
-  --radius-sm:6px;
-  --focus:0 0 0 3px #0e7c6633;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,system-ui,sans-serif;
-}
-@media (prefers-color-scheme: dark){
-  :root{
-    --bg:#0e1116;
-    --bg-alt:#161a21;
-    --bg-elev:#1a1f27;
-    --fg:#e9edf2;
-    --fg-soft:#b6bdc8;
-    --fg-mute:#8b94a1;
-    --border:#252b34;
-    --border-strong:#343c47;
-    --accent:#3ec1a4;
-    --accent-soft:#0e2620;
-    --accent-fg:#08110e;
-    --warn-red:#ff7a72;
-    --warn-red-bg:#2a1414;
-    --warn-orange:#ffb069;
-    --warn-orange-bg:#2a1d0d;
-    --warn-yellow:#ffe28a;
-    --warn-yellow-bg:#241f0a;
-    --info-blue:#7fb8e0;
-    --info-blue-bg:#0e1c2a;
-  }
+  --radius:6px;
+  --radius-sm:4px;
+  --focus:0 0 0 3px #d94f0033;
+  font-family:"Segoe UI",Roboto,Inter,-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
 }
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -66,22 +43,21 @@ body{
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
 }
-header.app{
-  border-bottom:1px solid var(--border);
-  padding:18px 20px;
-  background:var(--bg);
+.top-bar{
+  background:var(--bg-alt);
+  border-bottom:2px solid var(--accent);
+  padding:8px 16px;
 }
-header.app .wrap{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
-header.app h1{margin:0;font-size:20px;font-weight:600;letter-spacing:-0.01em}
-header.app p{margin:2px 0 0;color:var(--fg-mute);font-size:13px}
-header.app .actions{display:flex;gap:8px;flex-wrap:wrap}
+.top-bar-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.top-bar-title{font-size:14px;font-weight:600;color:var(--fg);letter-spacing:-.01em}
+.top-bar-actions{display:flex;gap:6px}
 button{
   font:inherit;
   cursor:pointer;
   background:var(--bg-elev);
   color:var(--fg);
   border:1px solid var(--border-strong);
-  padding:8px 14px;
+  padding:7px 12px;
   border-radius:var(--radius);
   transition:background .12s, border-color .12s;
 }
@@ -90,9 +66,13 @@ button:focus-visible{outline:none;box-shadow:var(--focus)}
 button.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
 button.primary:hover{filter:brightness(0.95)}
 button.ghost{background:transparent;border-color:var(--border)}
-main{max-width:1400px;margin:0 auto;padding:20px;display:grid;gap:20px;grid-template-columns:minmax(0,1fr);}
+main{max-width:1400px;margin:0 auto;padding:16px;display:grid;gap:16px;grid-template-columns:minmax(0,1fr);}
+@media(min-width:800px) and (max-width:1099px){
+  main{grid-template-columns:1fr 1fr;align-items:start}
+  main > section:nth-child(3){grid-column:1 / -1}
+}
 @media(min-width:1100px){
-  main{grid-template-columns:380px minmax(0,1fr) minmax(0,1fr);align-items:start}
+  main{grid-template-columns:360px minmax(0,1fr) minmax(0,1fr);align-items:start}
 }
 .card{
   background:var(--bg-elev);
@@ -182,7 +162,7 @@ details.advanced[open] summary{margin-bottom:8px}
 .chart-card{min-height:340px}
 .chart-card canvas{width:100% !important;height:340px !important}
 footer{
-  max-width:1400px;margin:0 auto;padding:24px 20px;
+  max-width:1400px;margin:0 auto;padding:16px;
   border-top:1px solid var(--border);font-size:12px;color:var(--fg-mute);
 }
 footer ul{padding-left:18px;margin:6px 0}
@@ -201,7 +181,7 @@ footer li{margin:3px 0}
 .kvline{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px dashed var(--border)}
 .kvline:last-child{border-bottom:none}
 @media print{
-  header.app .actions,.test-zone,footer .links,.profile-bar,.advanced{display:none}
+  .test-zone,footer .links,.profile-bar,.advanced{display:none}
   main{display:block}
   .card{break-inside:avoid;border:1px solid #ccc;page-break-inside:avoid;margin-bottom:12px}
   body{background:#fff;color:#000}
@@ -212,19 +192,16 @@ footer li{margin:3px 0}
 </style>
 </head>
 <body>
-<header class="app">
-  <div class="wrap">
-    <div>
-      <h1>Pro Kalkulator Ciśnienia Opon</h1>
-      <p>Breakpoint pressure z dostrojeniem do Silca / SRAM AXS / ENVE / Tom Anhalt 2020–2025</p>
-    </div>
-    <div class="actions">
-      <button class="ghost" id="btn-permalink" type="button" title="Skopiuj link z bieżącą konfiguracją do schowka">Link do udostępnienia</button>
-      <button class="ghost" id="btn-print" type="button" title="Wydrukuj wynik lub zapisz jako PDF">Drukuj / PDF</button>
+<div class="top-bar">
+  <div class="top-bar-inner">
+    <span class="top-bar-title">Kalkulator ciśnienia opon rowerowych</span>
+    <div class="top-bar-actions">
+      <button class="ghost" id="btn-permalink" type="button" title="Skopiuj link z bieżącą konfiguracją do schowka">Udostępnij</button>
+      <button class="ghost" id="btn-print" type="button" title="Wydrukuj wynik lub zapisz jako PDF">Drukuj</button>
       <button class="ghost" id="btn-reset" type="button" title="Przywróć ustawienia domyślne">Reset</button>
     </div>
   </div>
-</header>
+</div>
 
 <main>
   <!-- ============ KOLUMNA WEJŚĆ ============ -->
