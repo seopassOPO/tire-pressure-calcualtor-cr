@@ -682,7 +682,9 @@ const CONFIG = {
   safety: {
     HOOKLESS_BAR: 5.0,           // ETRTO 2024
     HOOKLESS_AL_BAR: 4.5,        // hookless aluminium — bardziej restrykcyjne
-    PINCH_RATIO: 0.70            // <70% balanced = ostrzeżenie snake-bite
+    PINCH_RATIO: 0.70,           // <70% balanced = ostrzeżenie snake-bite
+    P_MIN_BAR: 0.30,             // dolny próg fizyczny (poniżej opona praktycznie płaska)
+    P_HIGH_ADVISORY_BAR: 8.0     // próg ostrzeżenia o wysokim ciśnieniu bez max_psi_tire
   }
 };
 
@@ -924,7 +926,23 @@ function applySafetyClips(state, p){
     }
   }
 
-  // 5. dodatkowe sugestie
+  // 5. dolny clip fizyczny (poniżej 0,3 bar opona zachowuje się nieprzewidywalnie)
+  const pMin = CONFIG.safety.P_MIN_BAR;
+  if (pF < pMin || pR < pMin){
+    if (pF < pMin) pF = pMin;
+    if (pR < pMin) pR = pMin;
+    warnings.push({ level:'yellow',
+      html:`Wyliczone ciśnienie spada poniżej fizycznej granicy (${pMin} bar). Zwykle oznacza, że konfiguracja wykracza poza zakres modelu (np. lód + ekstremalnie szeroka opona). Ograniczam do ${pMin} bar.` });
+  }
+
+  // 6. miękkie ostrzeżenie o bardzo wysokim ciśnieniu bez max_psi_tire
+  const pHigh = CONFIG.safety.P_HIGH_ADVISORY_BAR;
+  if ((pF > pHigh || pR > pHigh) && state.maxPsiTire <= 0){
+    warnings.push({ level:'orange',
+      html:`Bardzo wysokie ciśnienie (>${pHigh} bar / ${barToPsi(pHigh).toFixed(0)} psi). <b>Sprawdź max PSI opony na bocznej ściance</b> — większość opon szosowych ma limit 110–125 psi. Wpisz go w polu „Max PSI opony", żeby kalkulator zaciął wynik.` });
+  }
+
+  // 7. dodatkowe sugestie
   if (state.category === 'road' && state.sigma >= 2.0){
     warnings.push({ level:'blue',
       html:`Jedziesz po nawierzchni σ≥2,0 na oponie szosowej — gravel 35–40 mm dałby Ci ~8–12 W zysku przy tej masie.` });
