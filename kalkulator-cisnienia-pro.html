@@ -1,0 +1,1298 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kalkulator Ciśnienia PRO</title>
+<meta name="description" content="Profesjonalny kalkulator ciśnienia opon rowerowych — szosa, gravel, MTB, e-bike. Wynik w bar i psi.">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:"Inter",ui-sans-serif,system-ui,-apple-system,sans-serif;
+  background:transparent;
+  color:#1e293b;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  line-height:1.4;
+  overflow-x:hidden;
+}
+::selection{background:#009ce0;color:#fff}
+
+main.kc-app{
+  width:100%;
+  max-width:1024px;
+  margin:0 auto;
+  padding:8px;
+  display:grid;
+  grid-template-columns:1fr;
+  gap:16px;
+  align-items:start;
+}
+@media(min-width:768px){
+  main.kc-app{
+    grid-template-columns:repeat(12,1fr);
+    padding:16px;
+  }
+  .kc-form-col{grid-column:span 7}
+  .kc-res-col{grid-column:span 5;position:relative}
+  .kc-res-sticky{position:sticky;top:16px;display:flex;flex-direction:column;gap:16px}
+}
+
+.kc-card{
+  background:#fff;
+  border-radius:16px;
+  border:1px solid #e2e8f0;
+  padding:16px;
+  box-shadow:0 1px 2px rgba(0,0,0,.04);
+}
+@media(min-width:640px){.kc-card{padding:24px}}
+
+/* Sections */
+.kc-section{margin-bottom:24px}
+.kc-section:last-child{margin-bottom:0}
+.kc-section-head{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:16px;
+  border-bottom:2px solid #ff5a00;
+  padding-bottom:4px;
+}
+.kc-section-head svg{width:16px;height:16px;color:#009ce0;flex-shrink:0}
+.kc-section-head h3{
+  margin:0;
+  font-size:12px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  color:#1e293b;
+}
+
+/* Grid helpers */
+.kc-grid-2{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:640px){.kc-grid-2{grid-template-columns:1fr 1fr}}
+.kc-full{grid-column:1/-1}
+.kc-space > * + *{margin-top:12px}
+
+/* Labels */
+.kc-label-wrap{display:inline-flex;align-items:center;gap:4px;margin-bottom:4px;position:relative}
+.kc-label{
+  font-size:.65rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.03em;
+  color:#64748b;
+  display:block;
+}
+.kc-label.kc-orange{color:#ff5a00}
+.kc-label.kc-blue{color:#009ce0}
+.kc-help{
+  width:14px;height:14px;color:#64748b;opacity:.6;cursor:help;
+  transition:opacity .15s;
+  flex-shrink:0;
+}
+.kc-help:hover{opacity:1}
+.kc-label-wrap[data-color="orange"] .kc-help{color:#ff5a00}
+.kc-label-wrap[data-color="blue"] .kc-help{color:#009ce0}
+.kc-tooltip{
+  position:absolute;
+  bottom:100%;
+  left:50%;
+  transform:translateX(-50%);
+  margin-bottom:8px;
+  width:200px;
+  padding:8px;
+  background:#1e293b;
+  color:#fff;
+  font-size:11px;
+  font-weight:400;
+  text-transform:none;
+  letter-spacing:0;
+  border-radius:4px;
+  box-shadow:0 4px 12px rgba(0,0,0,.2);
+  z-index:20;
+  text-align:center;
+  line-height:1.5;
+  display:none;
+  pointer-events:none;
+}
+.kc-tooltip::after{
+  content:"";
+  position:absolute;
+  top:100%;left:50%;
+  transform:translateX(-50%);
+  border:4px solid transparent;
+  border-top-color:#1e293b;
+}
+.kc-label-wrap:hover .kc-tooltip{display:block}
+
+/* Inputs */
+.kc-in-wrap{position:relative}
+.kc-in-wrap .kc-unit{
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:14px;
+  font-weight:500;
+  color:#64748b;
+  pointer-events:none;
+}
+.kc-input, .kc-select{
+  width:100%;
+  text-align:center;
+  background:#f1f5f9;
+  border:1px solid #cbd5e1;
+  border-radius:12px;
+  padding:8px 12px;
+  font-size:14px;
+  outline:none;
+  font-family:inherit;
+  color:#1e293b;
+  transition:box-shadow .15s, border-color .15s;
+  -webkit-appearance:none;
+  -moz-appearance:none;
+  appearance:none;
+}
+.kc-input{padding-right:32px}
+.kc-input:focus, .kc-select:focus{box-shadow:0 0 0 2px #009ce0;border-color:#009ce0}
+.kc-input.kc-white{background:#fff}
+.kc-select{
+  font-weight:500;
+  text-align-last:center;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 10px center;
+  padding-right:32px;
+}
+.kc-select optgroup{color:#009ce0;font-weight:700}
+.kc-select option{color:#000;font-weight:500}
+.kc-select:disabled{opacity:.7;cursor:not-allowed}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield}
+
+.kc-box{
+  border:1px solid #e2e8f0;
+  border-radius:12px;
+  padding:16px;
+  background:#f8fafc;
+}
+.kc-speed-grid{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:640px){.kc-speed-grid{grid-template-columns:1fr auto auto}}
+.kc-w-24{width:100%}
+@media(min-width:640px){.kc-w-24{width:96px}}
+
+/* Buttons */
+.kc-btns{display:flex;flex-direction:column;gap:12px;margin-top:24px}
+@media(min-width:640px){.kc-btns{flex-direction:row}}
+.kc-btn-primary{
+  flex:1;
+  background:#0f172a;
+  color:#fff;
+  font-weight:900;
+  font-size:14px;
+  text-transform:uppercase;
+  letter-spacing:.15em;
+  padding:16px;
+  border-radius:12px;
+  border:none;
+  border-bottom:4px solid #ff5a00;
+  box-shadow:0 10px 20px -10px rgba(15,23,42,.5);
+  cursor:pointer;
+  transition:box-shadow .3s, transform .3s;
+  font-family:inherit;
+}
+.kc-btn-primary:hover{box-shadow:0 15px 25px -10px rgba(15,23,42,.6);transform:translateY(-4px)}
+.kc-btn-primary:active{transform:translateY(-2px)}
+.kc-btn-ghost{
+  padding:16px 24px;
+  background:#f1f5f9;
+  color:#64748b;
+  font-weight:700;
+  font-size:14px;
+  text-transform:uppercase;
+  letter-spacing:.15em;
+  border:1px solid #e2e8f0;
+  border-radius:12px;
+  cursor:pointer;
+  font-family:inherit;
+  transition:background .15s;
+}
+.kc-btn-ghost:hover{background:#e2e8f0}
+.kc-btn-danger{
+  padding:16px 24px;
+  background:#ef4444;
+  color:#fff;
+  font-weight:700;
+  font-size:14px;
+  text-transform:uppercase;
+  letter-spacing:.15em;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  font-family:inherit;
+  transition:background .15s;
+}
+.kc-btn-danger:hover{background:#dc2626}
+.kc-confirm-row{display:flex;gap:8px}
+
+/* Results */
+.kc-empty{
+  min-height:400px;
+  background:#fff;
+  border:2px dashed #e2e8f0;
+  border-radius:16px;
+  padding:32px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  box-shadow:0 1px 2px rgba(0,0,0,.04);
+}
+.kc-empty-icon-wrap{position:relative;margin-bottom:24px}
+.kc-empty-icon{
+  width:80px;height:80px;
+  background:#f8fafc;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid #f1f5f9;
+  box-shadow:0 1px 2px rgba(0,0,0,.04);
+}
+.kc-empty-icon svg{width:40px;height:40px;color:#009ce0;opacity:.5}
+.kc-empty-pro{
+  position:absolute;
+  bottom:-8px;right:-8px;
+  background:#ff5a00;color:#fff;
+  font-size:10px;font-weight:900;
+  padding:4px 8px;border-radius:6px;
+  text-transform:uppercase;letter-spacing:.06em;
+  box-shadow:0 4px 6px rgba(0,0,0,.1);
+}
+.kc-empty h3{
+  font-size:10px;font-weight:700;color:#334155;
+  text-transform:uppercase;letter-spacing:.15em;
+  margin:0 0 8px;padding-bottom:4px;
+  border-bottom:2px solid #ff5a00;
+}
+.kc-empty p{font-size:11px;color:#64748b;max-width:320px;margin:8px 0 0}
+
+.kc-result-card{
+  background:#fff;
+  border-radius:24px;
+  box-shadow:0 10px 25px -5px rgba(0,0,0,.1),0 8px 10px -6px rgba(0,0,0,.1);
+  border:1px solid #e2e8f0;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  opacity:0;
+  transform:translateY(10px);
+  animation:kcFadeIn .4s ease forwards;
+}
+@keyframes kcFadeIn{to{opacity:1;transform:translateY(0)}}
+.kc-result-head{
+  background:#0f172a;
+  padding:16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.kc-result-head h3{
+  color:#fff;font-weight:700;font-size:14px;
+  letter-spacing:.15em;text-transform:uppercase;margin:0;
+}
+.kc-toggle-wrap{display:flex;align-items:center;gap:8px}
+.kc-toggle-lbl{font-size:10px;font-weight:700;letter-spacing:.05em}
+.kc-toggle-lbl.off{color:#94a3b8}
+.kc-toggle-lbl.on{color:#fff}
+.kc-toggle{
+  position:relative;display:inline-block;width:48px;height:24px;cursor:pointer;
+}
+.kc-toggle input{opacity:0;width:0;height:0}
+.kc-slider{
+  position:absolute;inset:0;
+  background:#94a3b8;
+  border-radius:9999px;
+  transition:background .2s;
+}
+.kc-slider::after{
+  content:"";
+  position:absolute;top:2px;left:2px;
+  width:20px;height:20px;
+  background:#fff;
+  border:1px solid #d1d5db;
+  border-radius:50%;
+  transition:transform .2s, border-color .2s;
+}
+.kc-toggle input:checked + .kc-slider{background:#009ce0}
+.kc-toggle input:checked + .kc-slider::after{transform:translateX(24px);border-color:#fff}
+
+.kc-result-body{padding:24px;background:#f8fafc;display:flex;flex-direction:column;gap:24px}
+
+.kc-alert{
+  background:#fef2f2;
+  border-left:4px solid #ef4444;
+  padding:12px;
+  border-radius:0 8px 8px 0;
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+}
+.kc-alert svg{width:20px;height:20px;color:#ef4444;flex-shrink:0}
+.kc-alert .kc-al-title{font-size:10px;font-weight:700;color:#991b1b;text-transform:uppercase;margin:0 0 4px}
+.kc-alert .kc-al-body{font-size:10px;color:#b91c1c;margin:0}
+
+.kc-press-row{display:flex;text-align:center}
+.kc-press-cell{flex:1}
+.kc-press-cell + .kc-press-cell{border-left:1px solid #e2e8f0}
+.kc-press-lbl{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin:0 0 4px}
+.kc-press-val{font-size:48px;font-weight:900;margin:0;line-height:1}
+.kc-press-val.blue{color:#009ce0}
+.kc-press-val.orange{color:#ff5a00}
+.kc-press-unit{font-size:12px;font-weight:700;color:#64748b;margin:4px 0 0}
+
+.kc-gay{background:#1e293b;padding:12px;border-radius:12px}
+.kc-gay-title{font-size:10px;font-weight:700;color:#ff5a00;text-transform:uppercase;letter-spacing:.05em;margin:0 0 4px}
+.kc-gay-body{font-size:10px;color:#cbd5e1;margin:0}
+.kc-gay-body b{color:#fff}
+
+.kc-wet{
+  padding-top:16px;
+  border-top:1px solid #e2e8f0;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.kc-wet-left{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:#475569}
+.kc-wet-left svg{width:16px;height:16px;color:#009ce0}
+.kc-wet-right{font-size:12px;font-weight:900;color:#1e293b}
+.kc-wet-right .blue{color:#009ce0}
+.kc-wet-right .orange{color:#ff5a00}
+
+.kc-report-card{
+  background:#fff;
+  border-radius:16px;
+  border:1px solid #e2e8f0;
+  padding:20px;
+  box-shadow:0 1px 2px rgba(0,0,0,.04);
+  opacity:0;
+  transform:translateY(10px);
+  animation:kcFadeIn .4s ease .1s forwards;
+}
+.kc-report-head{
+  display:flex;align-items:center;gap:8px;
+  border-bottom:1px solid #f1f5f9;
+  padding-bottom:12px;margin-bottom:16px;
+}
+.kc-report-head svg{width:20px;height:20px;color:#ff5a00}
+.kc-report-head h3{
+  font-size:12px;font-weight:900;color:#1e293b;
+  text-transform:uppercase;letter-spacing:.15em;margin:0;
+}
+.kc-report-list{display:flex;flex-direction:column;gap:12px}
+.kc-report-item{
+  background:#f8fafc;
+  border:1px solid #f1f5f9;
+  border-radius:12px;
+  padding:12px;
+  display:flex;
+  gap:12px;
+}
+.kc-report-item > svg{width:16px;height:16px;color:#ff5a00;margin-top:2px;flex-shrink:0}
+.kc-report-item p{font-size:11px;color:#475569;line-height:1.6;margin:0}
+.kc-info{
+  background:#e0f2fe;
+  border:1px solid #bae6fd;
+  border-radius:12px;
+  padding:12px;
+  display:flex;
+  gap:12px;
+}
+.kc-info svg{width:16px;height:16px;color:#0ea5e9;margin-top:2px;flex-shrink:0}
+.kc-info div{font-size:11px;color:#334155;line-height:1.6}
+.kc-info p{margin:0 0 4px}
+.kc-info p:last-child{margin-bottom:0}
+</style>
+</head>
+<body>
+
+<main class="kc-app" id="kc-app">
+  <div class="kc-form-col">
+    <div class="kc-card">
+      <form id="kc-form" novalidate>
+        <!-- 1. MASA I ROWER -->
+        <div class="kc-section">
+          <div class="kc-section-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="3"/><path d="M6.5 21a2 2 0 0 1-1.9-2.5l1.3-4A2 2 0 0 1 7.8 13h8.4a2 2 0 0 1 1.9 1.5l1.3 4a2 2 0 0 1-1.9 2.5Z"/></svg>
+            <h3>Masa i rower</h3>
+          </div>
+          <div class="kc-grid-2">
+            <div>
+              <div class="kc-label-wrap">
+                <label class="kc-label">Waga rowerzysty (kg)*</label>
+                <svg class="kc-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                <div class="kc-tooltip">Masa ciała w pełnym rynsztunku (kask, buty, plecak, bidony).</div>
+              </div>
+              <div class="kc-in-wrap">
+                <input type="number" name="riderWeight" required min="35" max="150" step="0.1" placeholder="Z odzieżą i bagażem" class="kc-input">
+                <span class="kc-unit">kg</span>
+              </div>
+            </div>
+            <div>
+              <div class="kc-label-wrap">
+                <label class="kc-label">Waga roweru (kg)*</label>
+                <svg class="kc-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                <div class="kc-tooltip">Gotowy do jazdy rower, łącznie z zamontowanymi akcesoriami.</div>
+              </div>
+              <div class="kc-in-wrap">
+                <input type="number" name="bikeWeight" required min="5" max="60" step="0.1" placeholder="Gotowy do jazdy" class="kc-input">
+                <span class="kc-unit">kg</span>
+              </div>
+            </div>
+            <div>
+              <div class="kc-label-wrap">
+                <label class="kc-label">Typ roweru*</label>
+                <svg class="kc-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                <div class="kc-tooltip">Rodzaj roweru określa dystrybucję masy między przodem a tyłem.</div>
+              </div>
+              <select name="bikeType" class="kc-select">
+                <optgroup label="Szosa & Triathlon">
+                  <option value="szosa">Szosa (Road)</option>
+                  <option value="tt">Triathlon / TT</option>
+                </optgroup>
+                <optgroup label="Gravel & CX">
+                  <option value="gravel">Gravel</option>
+                  <option value="cx">Przełaj (CX)</option>
+                </optgroup>
+                <optgroup label="MTB (Górskie)">
+                  <option value="mtb_xc">MTB XC (Cross-Country)</option>
+                  <option value="mtb_trail">MTB Trail</option>
+                  <option value="mtb_enduro">MTB Enduro</option>
+                  <option value="mtb_dh">MTB Downhill</option>
+                  <option value="mtb_mullet">MTB Mullet (Mieszane koła)</option>
+                </optgroup>
+                <optgroup label="E-bike">
+                  <option value="ebike_mtb_xc">E-bike MTB XC</option>
+                  <option value="ebike_mtb_trail">E-bike MTB Trail</option>
+                  <option value="ebike_mtb_enduro">E-bike MTB Enduro</option>
+                  <option value="ebike_mtb_mullet">E-bike MTB Mullet</option>
+                  <option value="ebike_suv">E-bike SUV</option>
+                  <option value="ebike_cargo">E-bike Cargo</option>
+                  <option value="ebike_cross">E-bike Cross / Trekking</option>
+                  <option value="ebike_gravel">E-bike Gravel</option>
+                  <option value="ebike_miejski">E-bike Miejski</option>
+                </optgroup>
+                <optgroup label="Miejskie & Turystyczne">
+                  <option value="miejskie">Miejskie</option>
+                  <option value="trekking">Trekking / Crossowe</option>
+                  <option value="skladane">Składane</option>
+                </optgroup>
+                <optgroup label="Grawitacja & Specjalne">
+                  <option value="bmx">BMX</option>
+                  <option value="dirt">Dirt (Street)</option>
+                  <option value="fatbike">Fatbike</option>
+                </optgroup>
+              </select>
+            </div>
+            <div>
+              <div class="kc-label-wrap">
+                <label class="kc-label">Zawieszenie*</label>
+                <svg class="kc-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                <div class="kc-tooltip">Obecność amortyzatorów wpływa na trakcję i wymaganą sztywność opony.</div>
+              </div>
+              <select name="suspensionType" id="kc-susp" class="kc-select">
+                <option value="rigid">Brak (Sztywny widelec)</option>
+                <option value="hardtail">Hardtail (Tylko przód)</option>
+                <option value="full">Full Suspension (Przód i tył)</option>
+              </select>
+            </div>
+            <div id="kc-ebike-row" class="kc-full" style="display:none">
+              <div class="kc-label-wrap">
+                <label class="kc-label">Silnik E-Bike*</label>
+                <svg class="kc-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                <div class="kc-tooltip">Większa moc silnika wymaga nieco wyższego ciśnienia dla ochrony opony.</div>
+              </div>
+              <select name="ebikePower" class="kc-select">
+                <option value="250w">250 W</option>
+                <option value="500w">500 W</option>
+                <option value="750w">750 W+</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. KOŁA I OPONY -->
+        <div class="kc-section">
+          <div class="kc-section-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>
+            <h3>Technologia kół</h3>
+          </div>
+          <div class="kc-space">
+            <div class="kc-grid-2">
+              <div>
+                <div class="kc-label-wrap">
+                  <label class="kc-label">Typ obręczy*</label>
+                  <svg class="kc-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                  <div class="kc-tooltip">Określa budowę profilu rantu obręczy — hooked, hookless lub szytka. Wpływa na kompatybilność i maksymalne dopuszczalne ciśnienie robocze.</div>
+                </div>
+                <select name="rimType" id="kc-rim" class="kc-select">
+                  <option value="hooked">Standardowa (Hooked/Crotchet)</option>
+                  <option value="hookless">Hookless (proste ścianki, bez rantu)</option>
+                  <option value="tubular">Szytka</option>
+                </select>
+              </div>
+              <div>
+                <div class="kc-label-wrap">
+                  <label class="kc-label">System Opony*</label>
+                  <svg class="kc-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                  <div class="kc-tooltip">Dętka lub tubeless — sposób utrzymywania ciśnienia. Tubeless umożliwia niższe ciśnienie i samouszczelnianie drobnych przebić.</div>
+                </div>
+                <select name="system" id="kc-sys" class="kc-select">
+                  <option value="tubeless">Tubeless (Bezdętkowy)</option>
+                  <option value="butyl">Dętka butylowa</option>
+                  <option value="latex">Dętka lateksowa</option>
+                  <option value="tpu">Dętka TPU</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="kc-wheel-single">
+              <div class="kc-label-wrap">
+                <label class="kc-label">Średnica koła*</label>
+                <svg class="kc-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                <div class="kc-tooltip">Nominalny wymiar koła (27.5", 29", 700C) determinuje kąt natarcia, zwrotność i moment obrotowy.</div>
+              </div>
+              <select name="wheelSize" class="kc-select">
+                <option value="29">29"</option>
+                <option value="28">28" (700c)</option>
+                <option value="27.5">27.5" (650b)</option>
+                <option value="26">26"</option>
+                <option value="24">24"</option>
+                <option value="20">20"</option>
+              </select>
+            </div>
+
+            <div id="kc-wheel-split" class="kc-grid-2" style="display:none">
+              <div>
+                <div class="kc-label-wrap">
+                  <label class="kc-label">Średnica koła przód*</label>
+                  <svg class="kc-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                  <div class="kc-tooltip">Nominalny wymiar koła przód. Standardy ETRTO wpływają na promień toczenia.</div>
+                </div>
+                <select name="wheelSizeFront" class="kc-select">
+                  <option value="29">29"</option>
+                  <option value="28">28" (700c)</option>
+                  <option value="27.5">27.5" (650b)</option>
+                  <option value="26">26"</option>
+                  <option value="24">24"</option>
+                  <option value="20">20"</option>
+                </select>
+              </div>
+              <div>
+                <div class="kc-label-wrap">
+                  <label class="kc-label">Średnica koła tył*</label>
+                  <svg class="kc-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                  <div class="kc-tooltip">Nominalny wymiar koła tył. Standardy ETRTO wpływają na promień toczenia.</div>
+                </div>
+                <select name="wheelSizeRear" class="kc-select">
+                  <option value="29">29"</option>
+                  <option value="28">28" (700c)</option>
+                  <option value="27.5" selected>27.5" (650b)</option>
+                  <option value="26">26"</option>
+                  <option value="24">24"</option>
+                  <option value="20">20"</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="kc-box">
+              <div class="kc-grid-2">
+                <div>
+                  <div class="kc-label-wrap">
+                    <label class="kc-label">↑ Szerokość opony przód*</label>
+                    <svg class="kc-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                    <div class="kc-tooltip">Szersza opona z przodu daje lepszą przyczepność kierunkową w zakrętach.</div>
+                  </div>
+                  <div class="kc-in-wrap">
+                    <input type="number" name="tireFront" required min="1.0" max="150" step="0.05" placeholder="cale (2.35) lub mm (40)" class="kc-input kc-white">
+                    <span class="kc-unit" id="kc-tf-unit">mm</span>
+                  </div>
+                </div>
+                <div>
+                  <div class="kc-label-wrap" data-color="orange">
+                    <label class="kc-label kc-orange">↓ Szerokość opony tył*</label>
+                    <svg class="kc-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                    <div class="kc-tooltip">Powierzchnia styku z podłożem odpowiada za transfer mocy i hamowanie. Tył często węższy niż przód.</div>
+                  </div>
+                  <div class="kc-in-wrap">
+                    <input type="number" name="tireRear" required min="1.0" max="150" step="0.05" placeholder="cale (2.35) lub mm (40)" class="kc-input kc-white">
+                    <span class="kc-unit" id="kc-tr-unit">mm</span>
+                  </div>
+                </div>
+                <div class="kc-full">
+                  <div class="kc-label-wrap">
+                    <label class="kc-label">Wewn. Szerokość Obręczy IRW (MM)*</label>
+                    <svg class="kc-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                    <div class="kc-tooltip">Wewnętrzna szerokość obręczy decyduje o architekturze opony po napompowaniu.</div>
+                  </div>
+                  <div class="kc-in-wrap">
+                    <input type="number" name="rimWidth" required min="10" max="100" step="0.5" placeholder="np. 21, 25, 30" class="kc-input kc-white">
+                    <span class="kc-unit">mm</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="kc-grid-2">
+              <div>
+                <div class="kc-label-wrap">
+                  <label class="kc-label">Oplot / Ścianki Boczne (Casing)*</label>
+                  <svg class="kc-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                  <div class="kc-tooltip">Karkas opony (TPI) odpowiada za elastyczność, wagę i odporność na uszkodzenia.</div>
+                </div>
+                <select name="casing" class="kc-select">
+                  <option value="standard">Standard / EXO / SG</option>
+                  <option value="ultralight">Ultralight race</option>
+                  <option value="allround">All-round / training</option>
+                  <option value="reinforced">Reinforced</option>
+                  <option value="trail">Trail / Enduro</option>
+                  <option value="dh">DH</option>
+                </select>
+              </div>
+              <div>
+                <div class="kc-label-wrap" data-color="blue">
+                  <label class="kc-label kc-blue">Wkładka Antydobiciowa*</label>
+                  <svg class="kc-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                  <div class="kc-tooltip">Pierścień pianki chroni obręcz przed dobiciem i stabilizuje ścianki przy niskim ciśnieniu (zapobiega burpingowi).</div>
+                </div>
+                <select name="insert" class="kc-select">
+                  <option value="none">Brak wkładki</option>
+                  <option value="light">Lekka (np. Tubolight, PTN, Airliner)</option>
+                  <option value="heavy">Ciężka zderzakowa (np. CushCore, Tannus)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. ŚRODOWISKO -->
+        <div class="kc-section">
+          <div class="kc-section-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg>
+            <h3>Środowisko użytkowania</h3>
+          </div>
+          <div class="kc-space">
+            <div>
+              <div class="kc-label-wrap">
+                <label class="kc-label">Chropowatość nawierzchni (skala impedancji)*</label>
+                <svg class="kc-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                <div class="kc-tooltip">Gładsza nawierzchnia = wyższe ciśnienie. Na nierównościach niższe ciśnienie zmniejsza straty wibracyjne.</div>
+              </div>
+              <select name="surfaceCondition" class="kc-select">
+                <option value="1">Kategoria 1: Welodrom drewniany / parkiet</option>
+                <option value="2">Kategoria 2: Świeży gładki asfalt / tor kolarski</option>
+                <option value="3" selected>Kategoria 3: Standardowy asfalt (lekkie pęknięcia)</option>
+                <option value="4">Kategoria 4: Przeciętny asfalt drogowy</option>
+                <option value="5">Kategoria 5: Stary asfalt / chipseal / bruk gładki</option>
+                <option value="6">Kategoria 6: Bruk klasyczny / Kostka Roubaix</option>
+                <option value="7">Kategoria 7: Gravel gładki</option>
+                <option value="8">Kategoria 8: Gravel szorstki / singletrack XC</option>
+                <option value="9">Kategoria 9: Gravel grube kamienie / Trail</option>
+                <option value="10">Kategoria 10: Enduro/DH technical / bike park</option>
+              </select>
+            </div>
+
+            <div class="kc-speed-grid">
+              <div>
+                <div class="kc-label-wrap">
+                  <label class="kc-label">Oczekiwana średnia prędkość*</label>
+                  <svg class="kc-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                  <div class="kc-tooltip">Przy wyższych prędkościach opór aerodynamiczny ma większe znaczenie niż toczenia.</div>
+                </div>
+                <div class="kc-in-wrap">
+                  <input type="number" name="avgSpeed" required min="5" max="70" step="1" placeholder="np. 30" class="kc-input" style="padding-right:48px">
+                  <span class="kc-unit">km/h</span>
+                </div>
+              </div>
+              <div>
+                <div class="kc-label-wrap">
+                  <label class="kc-label">Temp. Pomp.*</label>
+                  <svg class="kc-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                  <div class="kc-tooltip">Temperatura otoczenia w momencie pompowania (w domu / garażu).</div>
+                </div>
+                <div class="kc-in-wrap kc-w-24">
+                  <input type="number" name="tempPump" required min="-20" max="50" step="1" value="20" class="kc-input">
+                  <span class="kc-unit">°C</span>
+                </div>
+              </div>
+              <div>
+                <div class="kc-label-wrap">
+                  <label class="kc-label">Temp. Jazdy*</label>
+                  <svg class="kc-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                  <div class="kc-tooltip">Spodziewana temperatura na zewnątrz. Ciśnienie rośnie wraz z temperaturą.</div>
+                </div>
+                <div class="kc-in-wrap kc-w-24">
+                  <input type="number" name="tempRide" required min="-20" max="50" step="1" value="20" class="kc-input">
+                  <span class="kc-unit">°C</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="kc-btns">
+          <button type="submit" class="kc-btn-primary">OBLICZ</button>
+          <div id="kc-reset-plain">
+            <button type="button" id="kc-reset-btn" class="kc-btn-ghost">Reset</button>
+          </div>
+          <div id="kc-reset-confirm" class="kc-confirm-row" style="display:none">
+            <button type="button" id="kc-reset-yes" class="kc-btn-danger">Potwierdź</button>
+            <button type="button" id="kc-reset-no" class="kc-btn-ghost">Anuluj</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="kc-res-col">
+    <div class="kc-res-sticky">
+      <div id="kc-results">
+        <div class="kc-empty">
+          <div class="kc-empty-icon-wrap">
+            <div class="kc-empty-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 1 0 0-2h-1l-3 6-3-2 3-4"/><path d="m9 12 6 6"/></svg>
+            </div>
+            <div class="kc-empty-pro">Pro</div>
+          </div>
+          <h3>Oczekuje na dane</h3>
+          <p>Wprowadź parametry systemu i odbierz wyliczenia.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  var rigidOnlyTypes = ['szosa','tt','cx','bmx','dirt'];
+  var rigidHardtailTypes = ['gravel','ebike_szosa','ebike_gravel','fatbike','ebike_miejski','ebike_cargo','miejskie','trekking','skladane','ebike_cross'];
+  var splitWheelsTypes = ['mtb_mullet','ebike_mtb_mullet'];
+
+  var CONFIG = { powerMass: 0.80, powerSurface: 0.10 };
+
+  var CATEGORIES = {
+    szosa:{w_base:28,p_f:4.75,p_r:5.25,split_f:0.40,v_ref:32,irw_ref:19,m_ref:90},
+    tt:{w_base:25,p_f:6.2,p_r:6.5,split_f:0.42,v_ref:40,irw_ref:19,m_ref:90},
+    gravel:{w_base:40,p_f:2.8,p_r:3.1,split_f:0.40,v_ref:24,irw_ref:23,m_ref:90},
+    cx:{w_base:33,p_f:2.6,p_r:2.8,split_f:0.40,v_ref:22,irw_ref:21,m_ref:90},
+    mtb_xc:{w_base:57,p_f:1.55,p_r:1.70,split_f:0.38,v_ref:20,irw_ref:30,m_ref:90},
+    mtb_trail:{w_base:61,p_f:1.35,p_r:1.50,split_f:0.40,v_ref:16,irw_ref:30,m_ref:90},
+    mtb_enduro:{w_base:64,p_f:1.25,p_r:1.40,split_f:0.42,v_ref:14,irw_ref:30,m_ref:90},
+    mtb_dh:{w_base:64,p_f:1.40,p_r:1.55,split_f:0.45,v_ref:25,irw_ref:30,m_ref:90},
+    mtb_mullet:{w_base:64,p_f:1.25,p_r:1.40,split_f:0.42,v_ref:14,irw_ref:30,m_ref:90},
+    ebike_szosa:{w_base:32,p_f:4.0,p_r:4.4,split_f:0.42,v_ref:30,irw_ref:21,m_ref:105},
+    ebike_mtb:{w_base:66,p_f:1.35,p_r:1.50,split_f:0.42,v_ref:20,irw_ref:35,m_ref:120},
+    ebike_mtb_xc:{w_base:57,p_f:1.55,p_r:1.70,split_f:0.40,v_ref:20,irw_ref:30,m_ref:115},
+    ebike_mtb_trail:{w_base:61,p_f:1.35,p_r:1.50,split_f:0.42,v_ref:16,irw_ref:30,m_ref:115},
+    ebike_mtb_enduro:{w_base:64,p_f:1.25,p_r:1.40,split_f:0.44,v_ref:14,irw_ref:30,m_ref:115},
+    ebike_mtb_mullet:{w_base:64,p_f:1.25,p_r:1.40,split_f:0.44,v_ref:14,irw_ref:30,m_ref:115},
+    ebike_suv:{w_base:66,p_f:1.35,p_r:1.50,split_f:0.42,v_ref:20,irw_ref:35,m_ref:130},
+    ebike_cargo:{w_base:55,p_f:1.80,p_r:2.20,split_f:0.35,v_ref:15,irw_ref:30,m_ref:150},
+    ebike_cross:{w_base:45,p_f:2.50,p_r:2.80,split_f:0.42,v_ref:22,irw_ref:25,m_ref:115},
+    ebike_gravel:{w_base:42,p_f:2.60,p_r:2.90,split_f:0.42,v_ref:25,irw_ref:23,m_ref:110},
+    ebike_miejski:{w_base:45,p_f:2.80,p_r:3.10,split_f:0.37,v_ref:20,irw_ref:25,m_ref:115},
+    miejskie:{w_base:40,p_f:3.0,p_r:3.3,split_f:0.35,v_ref:18,irw_ref:21,m_ref:90},
+    trekking:{w_base:42,p_f:2.8,p_r:3.1,split_f:0.40,v_ref:20,irw_ref:23,m_ref:95},
+    skladane:{w_base:35,p_f:3.5,p_r:4.0,split_f:0.45,v_ref:15,irw_ref:19,m_ref:85},
+    bmx:{w_base:50,p_f:3.5,p_r:4.0,split_f:0.45,v_ref:15,irw_ref:25,m_ref:80},
+    dirt:{w_base:55,p_f:3.0,p_r:3.5,split_f:0.40,v_ref:15,irw_ref:25,m_ref:80},
+    fatbike:{w_base:122,p_f:0.42,p_r:0.48,split_f:0.42,v_ref:12,irw_ref:70,m_ref:90}
+  };
+
+  var SIGMA_MAP = {1:0.1,2:0.3,3:0.5,4:1.0,5:1.5,6:2.0,7:2.7,8:3.5,9:4.5,10:6.0};
+
+  var PSI_CONVERSION = 14.5037738;
+
+  function calculatePressure(data){
+    var isSplit = splitWheelsTypes.indexOf(data.bikeType) !== -1;
+    var tireF = data.tireFront;
+    var tireR = data.tireRear || data.tireFront;
+    var irwF = data.rimWidth;
+    var irwR = data.rimWidth;
+
+    var isMullet = data.bikeType.indexOf('mullet') !== -1;
+    var wheelSizeF = isMullet ? (data.wheelSizeFront || 29) : (data.wheelSize || 29);
+    var wheelSizeR = isMullet ? (data.wheelSizeRear || 27.5) : (data.wheelSize || 29);
+
+    var baseCat = CATEGORIES[data.bikeType];
+    if(!baseCat){
+      if(data.bikeType.indexOf('mtb') !== -1) baseCat = CATEGORIES['mtb_trail'];
+      else if(data.bikeType.indexOf('ebike') !== -1) baseCat = CATEGORIES['ebike_mtb'];
+      else baseCat = CATEGORIES['szosa'];
+    }
+
+    var m_total = data.riderWeight + data.bikeWeight;
+    var m_f = m_total * baseCat.split_f;
+    var m_r = m_total * (1 - baseCat.split_f);
+    var m_f_ref = baseCat.m_ref * baseCat.split_f;
+    var m_r_ref = baseCat.m_ref * (1 - baseCat.split_f);
+    var k_mass_f = Math.pow(m_f/m_f_ref, CONFIG.powerMass);
+    var k_mass_r = Math.pow(m_r/m_r_ref, CONFIG.powerMass);
+
+    var w_declared_f = tireF;
+    var w_declared_r = tireR;
+    if(w_declared_f < 6.0) w_declared_f *= 25.4;
+    if(w_declared_r < 6.0) w_declared_r *= 25.4;
+
+    var w_actual_f = w_declared_f + 0.4 * (irwF - baseCat.irw_ref);
+    var w_actual_r = w_declared_r + 0.4 * (irwR - baseCat.irw_ref);
+
+    function getEtrto(size){
+      if(size === 29 || size === 28) return 622;
+      if(size === 27.5) return 584;
+      if(size === 26) return 559;
+      if(size === 24) return 507;
+      if(size === 20) return 406;
+      return 622;
+    }
+
+    var ram_f = getEtrto(wheelSizeF)/2 + w_actual_f;
+    var ram_r = getEtrto(wheelSizeR)/2 + w_actual_r;
+
+    function getWidthExp(w){
+      if(w < 45) return 1.60;
+      if(w <= 65) return 1.35;
+      return 1.25;
+    }
+
+    var k_width_f = Math.pow(baseCat.w_base/w_actual_f, getWidthExp(w_actual_f));
+    var k_width_r = Math.pow(baseCat.w_base/w_actual_r, getWidthExp(w_actual_r));
+
+    var sigma = SIGMA_MAP[data.surfaceCondition] || 1.0;
+    var k_surface = Math.pow(1.0/sigma, CONFIG.powerSurface);
+
+    var k_speed = 1.0 + (data.avgSpeed - baseCat.v_ref)/250;
+
+    function getWheelSizeMod(size){
+      if(size <= 20) return 1.09;
+      if(size <= 24) return 1.06;
+      if(size <= 26) return 1.04;
+      if(size <= 27.5) return 1.02;
+      return 1.0;
+    }
+    var k_wheel_f = getWheelSizeMod(wheelSizeF);
+    var k_wheel_r = getWheelSizeMod(wheelSizeR);
+
+    var p_f = baseCat.p_f * k_mass_f * k_width_f * k_surface * k_speed * k_wheel_f;
+    var p_r = baseCat.p_r * k_mass_r * k_width_r * k_surface * k_speed * k_wheel_r;
+
+    var mod_f = 1.0, mod_r = 1.0;
+
+    if(data.system === 'latex' || data.system === 'tpu'){ mod_f *= 1.01; mod_r *= 1.01; }
+    else if(data.system === 'butyl'){ mod_f *= 1.03; mod_r *= 1.03; }
+    else if(data.system === 'tubular' || data.rimType === 'tubular'){ mod_f *= 0.98; mod_r *= 0.98; }
+
+    if(data.rimType === 'hookless'){ mod_f *= 0.93; mod_r *= 0.93; }
+
+    if(data.casing === 'ultralight'){ mod_f *= 0.97; mod_r *= 0.97; }
+    else if(data.casing === 'allround' || data.casing === 'trail'){ mod_f *= 1.02; mod_r *= 1.02; }
+    else if(data.casing === 'reinforced'){ mod_f *= 1.04; mod_r *= 1.04; }
+    else if(data.casing === 'dh'){ mod_f *= 0.98; mod_r *= 0.98; }
+
+    if(data.insert === 'light'){ mod_f *= 0.97; mod_r *= 0.95; }
+    else if(data.insert === 'heavy'){ mod_f *= 0.90; mod_r *= 0.85; }
+
+    if(data.suspensionType === 'rigid'){ mod_f *= 1.03; }
+    else if(data.suspensionType === 'full'){ mod_f *= 0.97; mod_r *= 0.96; }
+
+    if(w_actual_f/irwF < 1.45) mod_f *= 0.96;
+    if(w_actual_r/irwR < 1.45) mod_r *= 0.96;
+    if(w_actual_f/irwF > 2.4) mod_f *= 1.04;
+    if(w_actual_r/irwR > 2.4) mod_r *= 1.04;
+
+    if(data.bikeType.indexOf('ebike') !== -1 && data.ebikePower){
+      if(data.ebikePower === '250w'){ mod_r *= 1.04; }
+      else if(data.ebikePower === '500w'){ mod_f *= 1.01; mod_r *= 1.06; }
+      else if(data.ebikePower === '750w'){ mod_f *= 1.02; mod_r *= 1.09; }
+    }
+
+    p_f *= mod_f;
+    p_r *= mod_r;
+
+    var profile = data.profile || 'balans';
+    if(profile === 'komfort'){ p_f *= 0.95; p_r *= 0.95; }
+    else if(profile === 'wyscig'){ p_f *= 1.03; p_r *= 1.03; }
+    else if(profile === 'zjazd'){ p_f *= 0.93; p_r *= 0.95; }
+
+    var weather = data.weather || 'sucho';
+    var isOffroad = data.surfaceCondition > 5;
+    if(weather === 'wilgotno'){
+      p_f += isOffroad ? -0.10 : -0.15;
+      p_r += isOffroad ? -0.05 : -0.10;
+    } else if(weather === 'mokro'){
+      p_f += isOffroad ? -0.20 : -0.30;
+      p_r += isOffroad ? -0.15 : -0.20;
+    } else if(weather === 'lod'){
+      p_f += -0.40; p_r += -0.30;
+    }
+
+    var t_pump_k = data.tempPump + 273.15;
+    var t_ride_k = data.tempRide + 273.15;
+    var p_abs_f = p_f + 1.0;
+    var p_abs_r = p_r + 1.0;
+    var p_pump_f = p_abs_f * (t_pump_k/t_ride_k) - 1.0;
+    var p_pump_r = p_abs_r * (t_pump_k/t_ride_k) - 1.0;
+
+    var max_psi = 1000;
+    if(data.rimType === 'hookless') max_psi = Math.min(max_psi, 72.5);
+    if(data.rimMaterial === 'aluminium' && data.rimType === 'hookless') max_psi = Math.min(max_psi, 65.0);
+    if(data.maxTirePsi) max_psi = Math.min(max_psi, data.maxTirePsi);
+    if(data.maxRimPsi) max_psi = Math.min(max_psi, data.maxRimPsi);
+
+    var max_bar = max_psi / 14.5038;
+    var isClippedFront = false, isClippedRear = false;
+    if(p_pump_f > max_bar){ p_pump_f = max_bar; isClippedFront = true; }
+    if(p_pump_r > max_bar){ p_pump_r = max_bar; isClippedRear = true; }
+
+    var min_bar = 0.5;
+    if(p_pump_f < min_bar) p_pump_f = min_bar;
+    if(p_pump_r < min_bar) p_pump_r = min_bar;
+
+    var explanations = [];
+    explanations.push('<b>Rozkład Masy:</b> Baza geometrii uwzględnia ' + (baseCat.split_f*100).toFixed(0) + '% wagi z przodu i ' + ((1-baseCat.split_f)*100).toFixed(0) + '% z tyłu. Zostało to bezpośrednio zaimplementowane w ciśnieniach bazowych.');
+    if(data.system === 'butyl'){
+      explanations.push('<b>Dętki Butylowe (+3%):</b> Mnożnik ochronny zabezpieczający przed dobiciem dętki (Snakebite).');
+    } else if(data.system === 'latex' || data.system === 'tpu'){
+      explanations.push('<b>Dętki Premium (+1%):</b> Lekki mnożnik ochronny dostosowany do dętek ' + data.system.toUpperCase() + '.');
+    }
+    if(k_surface !== 1.0){
+      var surfacePerc = ((k_surface-1)*100).toFixed(1);
+      var sign = k_surface >= 1 ? '+' : '';
+      explanations.push('<b>Korekta Nawierzchni:</b> Wybrana chropowatość przesunęła bazowe wyliczenia impedancji o ' + sign + surfacePerc + '%.');
+    }
+    if(Math.abs(data.tempPump - data.tempRide) >= 3){
+      explanations.push('<b>Prawo Gay-Lussaca:</b> Uwzględniono korektę na różnicę temperatur.');
+    }
+    if(isClippedFront || isClippedRear){
+      if(data.rimType === 'hookless' && max_psi === 72.5){
+        explanations.push('<b>Limit Hookless:</b> Twoje wyliczone ciśnienie przekracza bezpieczny limit ETRTO. Ograniczam do 5.0 bar. Rozważ szerszą oponę.');
+      } else {
+        explanations.push('<b>Limit Ciśnienia:</b> Zredukowano ciśnienie do zadeklarowanego maksimum (' + max_psi + ' PSI / ' + (max_psi/14.5038).toFixed(1) + ' BAR).');
+      }
+    }
+
+    return {
+      tempRide: data.tempRide, tempPump: data.tempPump,
+      wamFront: w_actual_f, wamRear: w_actual_r,
+      ramFront: ram_f, ramRear: ram_r,
+      dryFront: p_f, dryRear: p_r,
+      wetFront: p_f * 0.95, wetRear: p_r * 0.95,
+      pumpFront: p_pump_f, pumpRear: p_pump_r,
+      explanations: explanations,
+      isClippedFront: isClippedFront, isClippedRear: isClippedRear
+    };
+  }
+
+  // Bike-type presets
+  var PRESETS = {
+    szosa:{bikeWeight:8,tireFront:28,tireRear:28,rimWidth:21,rimType:'hooked',system:'butyl',wheelSize:28,suspensionType:'rigid',avgSpeed:30},
+    tt:{bikeWeight:8,tireFront:28,tireRear:28,rimWidth:21,rimType:'hooked',system:'butyl',wheelSize:28,suspensionType:'rigid',avgSpeed:30},
+    gravel:{bikeWeight:9.5,tireFront:40,tireRear:40,rimWidth:24,rimType:'hooked',system:'tubeless',wheelSize:28,casing:'standard',suspensionType:'rigid',avgSpeed:25},
+    cx:{bikeWeight:8.5,tireFront:33,tireRear:33,rimWidth:22,rimType:'hooked',system:'tubeless',wheelSize:28,suspensionType:'rigid',avgSpeed:25},
+    mtb_xc:{bikeWeight:11,tireFront:2.25,tireRear:2.25,rimWidth:25,rimType:'hooked',system:'tubeless',wheelSize:29,casing:'standard',suspensionType:'hardtail',avgSpeed:20},
+    mtb_trail:{bikeWeight:13,tireFront:2.4,tireRear:2.4,rimWidth:30,rimType:'hooked',system:'tubeless',wheelSize:29,casing:'allround',suspensionType:'full',avgSpeed:18},
+    mtb_enduro:{bikeWeight:15,tireFront:2.5,tireRear:2.4,rimWidth:30,rimType:'hooked',system:'tubeless',wheelSize:29,casing:'reinforced',suspensionType:'full',avgSpeed:15},
+    mtb_dh:{bikeWeight:17,tireFront:2.5,tireRear:2.4,rimWidth:30,rimType:'hooked',system:'tubeless',wheelSize:29,casing:'dh',suspensionType:'full',avgSpeed:15},
+    mtb_mullet:{bikeWeight:15,tireFront:2.5,tireRear:2.4,rimWidth:30,rimType:'hooked',system:'tubeless',wheelSizeFront:29,wheelSizeRear:27.5,casing:'reinforced',suspensionType:'full',avgSpeed:15},
+    fatbike:{bikeWeight:15,tireFront:4.0,tireRear:4.0,rimWidth:80,rimType:'hooked',system:'tubeless',wheelSize:26,suspensionType:'rigid',avgSpeed:15},
+    ebike_mtb_xc:{bikeWeight:22,tireFront:2.4,tireRear:2.4,rimWidth:30,rimType:'hooked',system:'tubeless',wheelSize:29,casing:'reinforced',suspensionType:'hardtail',avgSpeed:22},
+    ebike_mtb_trail:{bikeWeight:24,tireFront:2.6,tireRear:2.6,rimWidth:30,rimType:'hooked',system:'tubeless',wheelSize:29,casing:'reinforced',suspensionType:'full',avgSpeed:20},
+    ebike_mtb_enduro:{bikeWeight:25,tireFront:2.6,tireRear:2.6,rimWidth:30,rimType:'hooked',system:'tubeless',wheelSize:29,casing:'dh',suspensionType:'full',avgSpeed:20},
+    ebike_mtb_mullet:{bikeWeight:25,tireFront:2.6,tireRear:2.6,rimWidth:30,rimType:'hooked',system:'tubeless',wheelSizeFront:29,wheelSizeRear:27.5,casing:'dh',suspensionType:'full',avgSpeed:20},
+    ebike_gravel:{bikeWeight:14,tireFront:45,tireRear:45,rimWidth:24,rimType:'hooked',system:'tubeless',wheelSize:28,casing:'standard',suspensionType:'rigid',avgSpeed:25},
+    skladane:{bikeWeight:12,tireFront:1.5,tireRear:1.5,rimWidth:19,rimType:'hooked',system:'butyl',wheelSize:20,suspensionType:'rigid',avgSpeed:15},
+    bmx:{bikeWeight:11,tireFront:2.2,tireRear:2.2,rimWidth:25,rimType:'hooked',system:'butyl',wheelSize:20,suspensionType:'rigid',avgSpeed:15},
+    dirt:{bikeWeight:12,tireFront:2.3,tireRear:2.3,rimWidth:25,rimType:'hooked',system:'butyl',wheelSize:26,suspensionType:'hardtail',avgSpeed:15}
+  };
+
+  // DOM refs
+  var form = document.getElementById('kc-form');
+  var resultsEl = document.getElementById('kc-results');
+  var suspEl = document.getElementById('kc-susp');
+  var rimEl = document.getElementById('kc-rim');
+  var sysEl = document.getElementById('kc-sys');
+  var ebikeRow = document.getElementById('kc-ebike-row');
+  var wheelSingle = document.getElementById('kc-wheel-single');
+  var wheelSplit = document.getElementById('kc-wheel-split');
+  var tfUnit = document.getElementById('kc-tf-unit');
+  var trUnit = document.getElementById('kc-tr-unit');
+  var resetPlain = document.getElementById('kc-reset-plain');
+  var resetConfirm = document.getElementById('kc-reset-confirm');
+  var resetBtn = document.getElementById('kc-reset-btn');
+  var resetYes = document.getElementById('kc-reset-yes');
+  var resetNo = document.getElementById('kc-reset-no');
+
+  var isPsi = false;
+
+  function getTireUnit(bt){
+    if(bt === 'fatbike' || bt.indexOf('mtb') !== -1 || bt === 'dirt' || bt === 'bmx') return '"';
+    return 'mm';
+  }
+  function getTirePlaceholder(bt){
+    if(bt === 'fatbike') return 'np. 4.8';
+    if(bt === 'szosa' || bt === 'tt') return 'np. 28';
+    return 'cale (2.35) lub mm (40)';
+  }
+
+  function setInputPlaceholder(){
+    var bt = form.bikeType.value;
+    var ph = getTirePlaceholder(bt);
+    form.tireFront.placeholder = ph;
+    form.tireRear.placeholder = ph;
+    var u = getTireUnit(bt);
+    tfUnit.textContent = u;
+    trUnit.textContent = u;
+  }
+
+  function updateSuspensionOptions(){
+    var bt = form.bikeType.value;
+    var allowed = ['rigid','hardtail','full'];
+    if(rigidOnlyTypes.indexOf(bt) !== -1) allowed = ['rigid'];
+    else if(rigidHardtailTypes.indexOf(bt) !== -1) allowed = ['rigid','hardtail'];
+
+    var opts = suspEl.querySelectorAll('option');
+    for(var i=0;i<opts.length;i++){
+      opts[i].style.display = allowed.indexOf(opts[i].value) === -1 ? 'none' : '';
+    }
+    if(allowed.indexOf(suspEl.value) === -1) suspEl.value = 'rigid';
+  }
+
+  function updateWheelUI(){
+    var bt = form.bikeType.value;
+    if(bt.indexOf('mullet') !== -1){
+      wheelSingle.style.display = 'none';
+      wheelSplit.style.display = '';
+    } else {
+      wheelSingle.style.display = '';
+      wheelSplit.style.display = 'none';
+    }
+  }
+
+  function updateEbikeUI(){
+    var bt = form.bikeType.value;
+    ebikeRow.style.display = bt.indexOf('ebike') !== -1 ? '' : 'none';
+  }
+
+  function updateSystemOptions(){
+    // If tubular rim, system must be tubular
+    if(rimEl.value === 'tubular'){
+      // preserve original list
+      if(sysEl.dataset.origHtml === undefined){
+        sysEl.dataset.origHtml = sysEl.innerHTML;
+      }
+      sysEl.innerHTML = '<option value="tubular">Szytka</option>';
+      sysEl.value = 'tubular';
+      sysEl.disabled = true;
+    } else {
+      if(sysEl.dataset.origHtml){
+        sysEl.innerHTML = sysEl.dataset.origHtml;
+        delete sysEl.dataset.origHtml;
+      }
+      sysEl.disabled = false;
+      if(sysEl.value === 'tubular') sysEl.value = 'tubeless';
+    }
+  }
+
+  function applyPreset(preset){
+    if(!preset) return;
+    for(var k in preset){
+      if(!preset.hasOwnProperty(k)) continue;
+      if(form.elements[k]){
+        form.elements[k].value = preset[k];
+      }
+    }
+  }
+
+  function onBikeTypeChange(){
+    var bt = form.bikeType.value;
+    var preset = PRESETS[bt];
+    if(preset){
+      applyPreset(preset);
+    }
+    updateSuspensionOptions();
+    updateWheelUI();
+    updateEbikeUI();
+    setInputPlaceholder();
+    updateSystemOptions();
+  }
+
+  function onRimTypeChange(){
+    if(rimEl.value === 'tubular'){
+      updateSystemOptions();
+    } else {
+      var wasTubular = sysEl.value === 'tubular';
+      updateSystemOptions();
+      if(wasTubular) sysEl.value = 'tubeless';
+    }
+  }
+
+  function collectState(){
+    var el = form.elements;
+    return {
+      riderWeight: parseFloat(el.riderWeight.value) || 0,
+      bikeWeight: parseFloat(el.bikeWeight.value) || 0,
+      bikeType: el.bikeType.value,
+      suspensionType: el.suspensionType.value,
+      rimType: el.rimType.value,
+      system: el.system.value,
+      wheelSize: parseFloat(el.wheelSize.value) || 29,
+      wheelSizeFront: parseFloat(el.wheelSizeFront.value) || 29,
+      wheelSizeRear: parseFloat(el.wheelSizeRear.value) || 27.5,
+      tireFront: parseFloat(el.tireFront.value) || 0,
+      tireRear: parseFloat(el.tireRear.value) || 0,
+      rimWidth: parseFloat(el.rimWidth.value) || 0,
+      casing: el.casing.value,
+      insert: el.insert.value,
+      surfaceCondition: parseInt(el.surfaceCondition.value,10) || 3,
+      ebikePower: el.ebikePower ? el.ebikePower.value : undefined,
+      avgSpeed: parseFloat(el.avgSpeed.value) || 0,
+      tempPump: parseFloat(el.tempPump.value),
+      tempRide: parseFloat(el.tempRide.value)
+    };
+  }
+
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function fmt(v){ return isPsi ? v.toFixed(1) : v.toFixed(2); }
+  function getVal(bar){ return isPsi ? bar * PSI_CONVERSION : bar; }
+
+  function renderResults(r){
+    var unitStr = isPsi ? 'PSI' : 'BAR';
+    var unitSmall = isPsi ? 'PSI' : 'Bar';
+    var hooklessLimit = isPsi ? '72.5 PSI' : '5.0 Bar';
+    var showAlert = r.isClippedFront || r.isClippedRear;
+    var showGay = Math.abs(r.tempPump - r.tempRide) >= 3;
+
+    var html = '';
+    html += '<div class="kc-result-card">';
+    html +=   '<div class="kc-result-head">';
+    html +=     '<h3>Ciśnienie Docelowe</h3>';
+    html +=     '<div class="kc-toggle-wrap">';
+    html +=       '<span class="kc-toggle-lbl ' + (isPsi ? 'off' : 'on') + '">BAR</span>';
+    html +=       '<label class="kc-toggle"><input type="checkbox" id="kc-unit-toggle"' + (isPsi ? ' checked' : '') + '><span class="kc-slider"></span></label>';
+    html +=       '<span class="kc-toggle-lbl ' + (isPsi ? 'on' : 'off') + '">PSI</span>';
+    html +=     '</div>';
+    html +=   '</div>';
+    html +=   '<div class="kc-result-body">';
+    if(showAlert){
+      html += '<div class="kc-alert">';
+      html +=   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>';
+      html +=   '<div><p class="kc-al-title">Limit Hookless (ETRTO)</p><p class="kc-al-body">Wartość ograniczona do ' + hooklessLimit + ' dla bezpieczeństwa felgi.</p></div>';
+      html += '</div>';
+    }
+    html +=     '<div class="kc-press-row">';
+    html +=       '<div class="kc-press-cell"><p class="kc-press-lbl">Przód</p><p class="kc-press-val blue">' + fmt(getVal(r.dryFront)) + '</p><p class="kc-press-unit">' + unitStr + '</p></div>';
+    html +=       '<div class="kc-press-cell"><p class="kc-press-lbl">Tył</p><p class="kc-press-val orange">' + fmt(getVal(r.dryRear)) + '</p><p class="kc-press-unit">' + unitStr + '</p></div>';
+    html +=     '</div>';
+    if(showGay){
+      html +=   '<div class="kc-gay"><p class="kc-gay-title">Korekta Gay-Lussaca (Temp)</p><p class="kc-gay-body">W pokoju nabij: <b>F: ' + fmt(getVal(r.pumpFront)) + ' / R: ' + fmt(getVal(r.pumpRear)) + ' ' + unitSmall + '</b></p></div>';
+    }
+    html +=     '<div class="kc-wet">';
+    html +=       '<div class="kc-wet-left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></svg><span>Mokry asfalt / Ślisko:</span></div>';
+    html +=       '<span class="kc-wet-right">Przód <span class="blue">' + fmt(getVal(r.wetFront)) + '</span> / Tył <span class="orange">' + fmt(getVal(r.wetRear)) + '</span></span>';
+    html +=     '</div>';
+    html +=   '</div>';
+    html += '</div>';
+
+    html += '<div class="kc-report-card">';
+    html +=   '<div class="kc-report-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg><h3>RAPORT Z MODELU</h3></div>';
+    html +=   '<div class="kc-report-list">';
+    html +=     '<div class="kc-report-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg><p><b>Szacowany WAM (Szerokość Zmierzona):</b> Z uwzględnieniem IRW obręczy, obliczona szerokość opony wynosi ok. <b>' + r.wamFront.toFixed(1) + 'mm (Przód)</b> oraz <b>' + r.wamRear.toFixed(1) + 'mm (Tył)</b>. Rzeczywisty wymiar może się różnić.</p></div>';
+    html +=     '<div class="kc-report-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg><p><b>Obliczenia RAM (Zmierzony Promień Koła):</b> Teoretyczny promień koła od osi piasty do szczytu opony wynosi ok. <b>' + (r.ramFront ? r.ramFront.toFixed(1) : '-') + 'mm (Przód)</b> oraz <b>' + (r.ramRear ? r.ramRear.toFixed(1) : '-') + 'mm (Tył)</b>.</p></div>';
+    for(var i=0;i<r.explanations.length;i++){
+      html += '<div class="kc-report-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg><p>' + r.explanations[i] + '</p></div>';
+    }
+    html +=     '<div class="kc-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/></svg><div><p><b>Uwaga:</b> Kalkulator stanowi punkt wyjścia i zaleca się dalsze udoskonalenia, aby znaleźć właściwe ciśnienie dla konkretnej konfiguracji.</p><p>Należy zawsze sprawdzać dopuszczalny zakres minimalnego i maksymalnego ciśnienia użytkowanej obręczy oraz opony.</p></div></div>';
+    html +=   '</div>';
+    html += '</div>';
+
+    resultsEl.innerHTML = html;
+
+    var toggle = document.getElementById('kc-unit-toggle');
+    if(toggle){
+      toggle.addEventListener('change', function(){
+        isPsi = toggle.checked;
+        renderResults(lastResults);
+      });
+    }
+  }
+
+  function renderEmpty(){
+    resultsEl.innerHTML =
+      '<div class="kc-empty">' +
+        '<div class="kc-empty-icon-wrap">' +
+          '<div class="kc-empty-icon">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 1 0 0-2h-1l-3 6-3-2 3-4"/><path d="m9 12 6 6"/></svg>' +
+          '</div>' +
+          '<div class="kc-empty-pro">Pro</div>' +
+        '</div>' +
+        '<h3>Oczekuje na dane</h3>' +
+        '<p>Wprowadź parametry systemu i odbierz wyliczenia.</p>' +
+      '</div>';
+  }
+
+  var lastResults = null;
+
+  // Event handlers
+  form.bikeType.addEventListener('change', onBikeTypeChange);
+  rimEl.addEventListener('change', onRimTypeChange);
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    if(!form.checkValidity()){ form.reportValidity(); return; }
+    var state = collectState();
+    lastResults = calculatePressure(state);
+    renderResults(lastResults);
+    if(window.innerWidth < 1024){
+      setTimeout(function(){
+        resultsEl.scrollIntoView({behavior:'smooth', block:'start'});
+      }, 50);
+    }
+  });
+
+  resetBtn.addEventListener('click', function(){
+    resetPlain.style.display = 'none';
+    resetConfirm.style.display = 'flex';
+  });
+  resetNo.addEventListener('click', function(){
+    resetConfirm.style.display = 'none';
+    resetPlain.style.display = '';
+  });
+  resetYes.addEventListener('click', function(){
+    form.reset();
+    lastResults = null;
+    renderEmpty();
+    resetConfirm.style.display = 'none';
+    resetPlain.style.display = '';
+    // reset defaults
+    form.tempPump.value = 20;
+    form.tempRide.value = 20;
+    form.bikeType.value = 'szosa';
+    form.surfaceCondition.value = 3;
+    form.wheelSizeRear.value = 27.5;
+    onBikeTypeChange();
+  });
+
+  // Init
+  onBikeTypeChange();
+})();
+</script>
+</body>
+</html>
