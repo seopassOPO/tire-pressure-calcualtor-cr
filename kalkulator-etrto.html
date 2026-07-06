@@ -1,0 +1,840 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kalkulator Kompatybilności ETRTO — opona / obręcz</title>
+<meta name="description" content="Kalkulator kompatybilności opony rowerowej z obręczą wg najnowszych wytycznych ETRTO. Szosa, gravel, MTB.">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:"Inter",ui-sans-serif,system-ui,-apple-system,sans-serif;
+  background:transparent;
+  color:#1e293b;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  line-height:1.4;
+  overflow-x:hidden;
+}
+::selection{background:#009ce0;color:#fff}
+
+main.ke-app{
+  width:100%;
+  max-width:1024px;
+  margin:0 auto;
+  padding:8px;
+}
+@media(min-width:640px){main.ke-app{padding:16px}}
+
+.ke-card{
+  background:#fff;
+  border-radius:16px;
+  border:1px solid #e2e8f0;
+  padding:16px;
+  box-shadow:0 1px 2px rgba(0,0,0,.04);
+}
+@media(min-width:640px){.ke-card{padding:24px}}
+
+/* Header */
+.ke-header{text-align:center;margin-bottom:20px}
+.ke-header h1{
+  font-size:20px;font-weight:900;color:#0f172a;
+  margin:0 0 8px;line-height:1.25;
+}
+@media(min-width:640px){.ke-header h1{font-size:24px}}
+.ke-header p{font-size:13px;color:#64748b;margin:0}
+
+/* Layout */
+.ke-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:24px;
+  align-items:start;
+}
+@media(min-width:900px){.ke-grid{grid-template-columns:1fr 1fr;gap:32px}}
+
+.ke-col{display:flex;flex-direction:column;gap:20px}
+
+/* Section header (matches PRO calculator) */
+.ke-section-head{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:12px;
+  border-bottom:2px solid #ff5a00;
+  padding-bottom:4px;
+}
+.ke-section-head svg{width:16px;height:16px;color:#009ce0;flex-shrink:0}
+.ke-section-head h3{
+  margin:0;font-size:12px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;color:#1e293b;
+}
+
+/* Tabs */
+.ke-tabs{
+  display:flex;
+  padding:4px;
+  background:#f1f5f9;
+  border-radius:12px;
+  gap:0;
+}
+.ke-tab{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  padding:10px 8px;
+  font-size:13px;
+  font-weight:600;
+  color:#64748b;
+  background:transparent;
+  border:0;
+  border-radius:8px;
+  cursor:pointer;
+  transition:all .2s;
+  font-family:inherit;
+  min-height:40px;
+}
+.ke-tab svg{width:16px;height:16px}
+.ke-tab:hover{color:#334155}
+.ke-tab.active{
+  background:#fff;
+  color:#0f172a;
+  box-shadow:0 1px 2px rgba(0,0,0,.06);
+}
+.ke-tab.active[data-color="road"]{color:#009ce0}
+.ke-tab.active[data-color="gravel"]{color:#ff5a00}
+.ke-tab.active[data-color="mtb"]{color:#059669}
+
+/* Mode switcher */
+.ke-mode{
+  display:flex;
+  padding:4px;
+  background:#f1f5f9;
+  border-radius:12px;
+  align-items:center;
+  gap:4px;
+}
+.ke-mode-btn{
+  flex:1;
+  padding:10px 8px;
+  font-size:13px;
+  font-weight:600;
+  color:#64748b;
+  background:transparent;
+  border:0;
+  border-radius:8px;
+  cursor:pointer;
+  transition:all .2s;
+  font-family:inherit;
+  min-height:40px;
+}
+.ke-mode-btn.active{background:#fff;color:#0f172a;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.ke-mode-arrow{
+  display:flex;align-items:center;justify-content:center;
+  padding:0 4px;color:#94a3b8;
+}
+.ke-mode-arrow svg{width:16px;height:16px}
+
+/* Slider block */
+.ke-slider-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  margin-bottom:12px;
+  gap:8px;
+}
+.ke-slider-label{
+  font-size:13px;
+  font-weight:600;
+  color:#334155;
+  margin:0;
+}
+.ke-slider-val{
+  font-size:32px;
+  font-weight:900;
+  color:#0f172a;
+  line-height:1;
+  white-space:nowrap;
+}
+.ke-slider-val .unit{
+  font-size:16px;color:#94a3b8;font-weight:500;
+}
+
+.ke-slider-row{display:flex;align-items:center;gap:12px}
+.ke-nudge{
+  width:40px;height:40px;
+  flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:#f1f5f9;
+  color:#475569;
+  border:0;
+  border-radius:9999px;
+  cursor:pointer;
+  transition:background .15s, transform .1s;
+  font-family:inherit;
+  font-size:20px;font-weight:700;line-height:1;
+  padding:0;
+}
+.ke-nudge:hover:not(:disabled){background:#e2e8f0}
+.ke-nudge:active:not(:disabled){transform:scale(.95)}
+.ke-nudge:disabled{opacity:.5;cursor:not-allowed}
+
+.ke-slider-wrap{flex:1;position:relative;padding:8px 0 24px}
+.ke-slider-range{
+  -webkit-appearance:none;
+  appearance:none;
+  width:100%;
+  height:8px;
+  background:#e2e8f0;
+  border-radius:9999px;
+  outline:none;
+  cursor:pointer;
+  margin:0;
+}
+.ke-slider-range::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  appearance:none;
+  width:20px;height:20px;
+  background:#0f172a;
+  border:3px solid #fff;
+  border-radius:50%;
+  cursor:pointer;
+  box-shadow:0 2px 6px rgba(0,0,0,.2);
+}
+.ke-slider-range::-moz-range-thumb{
+  width:20px;height:20px;
+  background:#0f172a;
+  border:3px solid #fff;
+  border-radius:50%;
+  cursor:pointer;
+  box-shadow:0 2px 6px rgba(0,0,0,.2);
+}
+.ke-slider-range:focus-visible{box-shadow:0 0 0 3px rgba(0,156,224,.3)}
+.ke-slider-scale{
+  display:flex;justify-content:space-between;
+  font-size:11px;font-weight:500;color:#94a3b8;
+  padding:6px 2px 0;
+}
+
+/* Unit toggle (mm/cale) */
+.ke-unit-wrap{display:flex;justify-content:flex-end}
+.ke-unit-toggle{
+  display:inline-flex;
+  padding:2px;
+  background:rgba(241,245,249,.8);
+  border:1px solid rgba(226,232,240,.6);
+  border-radius:8px;
+  box-shadow:0 1px 2px rgba(0,0,0,.04);
+}
+.ke-unit-btn{
+  padding:4px 12px;
+  font-size:11px;font-weight:700;
+  color:#64748b;
+  background:transparent;border:0;
+  border-radius:6px;
+  cursor:pointer;
+  transition:all .15s;
+  font-family:inherit;
+}
+.ke-unit-btn.active{background:#fff;color:#1e293b;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+
+/* Result cards */
+.ke-result{
+  border-radius:16px;
+  padding:20px;
+  border:1px solid;
+  position:relative;
+}
+.ke-result-tolerated{
+  background:#f8fafc;
+  border-color:#e2e8f0;
+}
+.ke-result-recommended{
+  background:#fff7ed;
+  border-color:#fed7aa;
+}
+.ke-result-head{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-weight:700;
+  font-size:14px;
+  margin-bottom:4px;
+}
+.ke-result-tolerated .ke-result-head{color:#009ce0}
+.ke-result-recommended .ke-result-head{color:#ff5a00}
+.ke-result-head svg{width:20px;height:20px}
+.ke-help-wrap{position:relative;display:inline-flex;margin-left:4px}
+.ke-help{
+  width:16px;height:16px;
+  color:#94a3b8;
+  cursor:help;
+  transition:color .15s;
+}
+.ke-help:hover{color:#475569}
+.ke-tt{
+  position:absolute;
+  bottom:100%;left:50%;
+  transform:translateX(-50%);
+  margin-bottom:8px;
+  width:240px;
+  padding:10px;
+  background:#1e293b;color:#fff;
+  font-size:11px;font-weight:400;
+  text-transform:none;letter-spacing:0;
+  border-radius:6px;
+  box-shadow:0 4px 12px rgba(0,0,0,.2);
+  z-index:20;
+  text-align:center;line-height:1.5;
+  display:none;
+  pointer-events:none;
+}
+.ke-tt::after{
+  content:"";
+  position:absolute;top:100%;left:50%;
+  transform:translateX(-50%);
+  border:4px solid transparent;
+  border-top-color:#1e293b;
+}
+.ke-help-wrap:hover .ke-tt{display:block}
+.ke-result-sub{font-size:12px;color:#64748b;margin:0 0 12px}
+.ke-result-recommended .ke-result-sub{color:rgba(255,90,0,.75)}
+.ke-result-val{
+  font-size:24px;font-weight:900;color:#0f172a;
+  margin:0;line-height:1.15;
+}
+@media(min-width:640px){.ke-result-val{font-size:28px}}
+.ke-result-recommended .ke-result-val{color:#9a3412}
+.ke-advice{
+  margin-top:12px;
+  padding-top:12px;
+  border-top:1px solid rgba(255,90,0,.25);
+  font-size:13px;
+  color:#9a3412;
+  line-height:1.5;
+}
+.ke-advice strong{font-weight:700}
+
+/* Chart */
+.ke-chart-card{
+  background:#fff;
+  border:1px solid #e2e8f0;
+  border-radius:16px;
+  padding:16px;
+}
+.ke-chart-head{
+  font-size:13px;font-weight:700;color:#334155;
+  margin:0 0 16px;
+}
+.ke-bars{display:flex;flex-direction:column;gap:12px}
+.ke-bar-row{display:grid;grid-template-columns:90px 1fr auto;align-items:center;gap:12px}
+.ke-bar-name{font-size:12px;font-weight:600;color:#64748b}
+.ke-bar-track{
+  position:relative;
+  height:20px;
+  background:#f1f5f9;
+  border-radius:6px;
+}
+.ke-bar-fill{
+  position:absolute;
+  top:0;bottom:0;
+  border-radius:6px;
+  min-width:6px;
+}
+.ke-bar-tolerated{background:#94a3b8}
+.ke-bar-recommended{background:#009ce0}
+.ke-bar-value{
+  font-size:12px;font-weight:700;color:#0f172a;
+  white-space:nowrap;
+  min-width:80px;
+  text-align:right;
+}
+.ke-chart-scale{
+  display:flex;justify-content:space-between;
+  font-size:11px;color:#94a3b8;
+  margin-top:8px;
+  padding:0 2px;
+}
+
+/* Info */
+.ke-info{
+  display:flex;gap:12px;
+  padding:14px;
+  background:rgba(219,234,254,.35);
+  border:1px solid rgba(147,197,253,.35);
+  border-radius:12px;
+  color:#1e40af;
+  font-size:13px;
+  line-height:1.55;
+  margin-top:8px;
+}
+.ke-info svg{width:20px;height:20px;color:#3b82f6;flex-shrink:0;margin-top:1px}
+.ke-info p{margin:0}
+.ke-info strong{font-weight:700}
+</style>
+</head>
+<body>
+
+<main class="ke-app">
+  <div class="ke-card">
+    <div class="ke-header">
+      <h1>Kompatybilność opony z obręczą — kalkulator ETRTO</h1>
+      <p>Sprawdź zgodność z najnowszymi wytycznymi ETRTO i dobrymi praktykami mechaników</p>
+    </div>
+
+    <div class="ke-grid">
+      <!-- LEFT: Configuration -->
+      <div class="ke-col">
+        <div>
+          <div class="ke-section-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></svg>
+            <h3>Typ roweru</h3>
+          </div>
+          <div class="ke-tabs" role="tablist">
+            <button type="button" class="ke-tab active" data-type="road" data-color="road">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></svg>
+              Szosa
+            </button>
+            <button type="button" class="ke-tab" data-type="gravel" data-color="gravel">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+              Gravel
+            </button>
+            <button type="button" class="ke-tab" data-type="mtb" data-color="mtb">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
+              MTB
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <div class="ke-section-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 3 21 3 21 7"/><line x1="14" y1="10" x2="21" y2="3"/><polyline points="7 21 3 21 3 17"/><line x1="10" y1="14" x2="3" y2="21"/></svg>
+            <h3>Tryb kalkulatora</h3>
+          </div>
+          <div class="ke-mode">
+            <button type="button" class="ke-mode-btn active" data-mode="rimToTire">Szukam opony</button>
+            <div class="ke-mode-arrow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 3 21 3 21 7"/><line x1="14" y1="10" x2="21" y2="3"/><polyline points="7 21 3 21 3 17"/><line x1="10" y1="14" x2="3" y2="21"/></svg>
+            </div>
+            <button type="button" class="ke-mode-btn" data-mode="tireToRim">Szukam obręczy</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="ke-slider-head">
+            <label class="ke-slider-label" id="ke-slider-label">Szerokość wewnętrzna obręczy</label>
+            <span class="ke-slider-val"><span id="ke-slider-value">19</span> <span class="unit" id="ke-slider-unit">mm</span></span>
+          </div>
+          <div class="ke-slider-row">
+            <button type="button" class="ke-nudge" id="ke-minus" aria-label="Zmniejsz">−</button>
+            <div class="ke-slider-wrap">
+              <input type="range" id="ke-range" class="ke-slider-range" min="15" max="25" step="1" value="19">
+              <div class="ke-slider-scale">
+                <span id="ke-scale-min">15 mm</span>
+                <span id="ke-scale-max">25 mm</span>
+              </div>
+            </div>
+            <button type="button" class="ke-nudge" id="ke-plus" aria-label="Zwiększ">+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Results -->
+      <div class="ke-col">
+        <div class="ke-unit-wrap" id="ke-unit-wrap" style="display:none">
+          <div class="ke-unit-toggle">
+            <button type="button" class="ke-unit-btn active" data-unit="mm">mm</button>
+            <button type="button" class="ke-unit-btn" data-unit="in">cale</button>
+          </div>
+        </div>
+
+        <div class="ke-result ke-result-tolerated">
+          <div class="ke-result-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span id="ke-tol-title">Dopuszczalne (ETRTO)</span>
+            <span class="ke-help-wrap">
+              <svg class="ke-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/></svg>
+              <div class="ke-tt">Bezpieczny zakres według najnowszych norm ETRTO. Gwarantuje poprawne osadzenie opony na obręczy i minimalizuje ryzyko awarii.</div>
+            </span>
+          </div>
+          <p class="ke-result-sub">Zgodne z aktualnymi wytycznymi bezpieczeństwa</p>
+          <p class="ke-result-val" id="ke-tol-value">—</p>
+        </div>
+
+        <div class="ke-result ke-result-recommended">
+          <div class="ke-result-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span id="ke-rec-title">Rekomendowane</span>
+            <span class="ke-help-wrap">
+              <svg class="ke-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/></svg>
+              <div class="ke-tt">Zalecane dla najlepszych osiągów. Optymalny balans między aerodynamiką, oporami toczenia i komfortem dla wybranego typu roweru.</div>
+            </span>
+          </div>
+          <p class="ke-result-sub" id="ke-rec-sub">Optymalny profil dla osiągów</p>
+          <p class="ke-result-val" id="ke-rec-value">—</p>
+          <div class="ke-advice" id="ke-advice" style="display:none"><strong>Rada:</strong> <span id="ke-advice-text"></span></div>
+        </div>
+
+        <div class="ke-chart-card" id="ke-chart" style="display:none">
+          <h3 class="ke-chart-head">Wizualizacja dopasowania</h3>
+          <div class="ke-bars" id="ke-bars"></div>
+          <div class="ke-chart-scale">
+            <span id="ke-chart-min">Węższe</span>
+            <span id="ke-chart-max">Szersze</span>
+          </div>
+        </div>
+
+        <div class="ke-info">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/></svg>
+          <p>Zalecane szerokości opon opierają się na sprawdzonych praktykach. Dopuszczalne wartości bazują na najnowszych standardach <strong>ETRTO 2024</strong>. W przypadku obręczy <strong>hookless (TSS)</strong> upewnij się, że producent opony dopuszcza dany model do stosowania z takimi obręczami.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  function parseRange(text){
+    if(text === 'Brak danych') return null;
+    var m = text.match(/(\d+)\s*[-–]\s*(\d+)/);
+    if(m) return [parseInt(m[1],10), parseInt(m[2],10)];
+    var s = text.match(/(\d+)/);
+    if(s){ var v = parseInt(s[1],10); return [v,v]; }
+    return null;
+  }
+
+  function getToleratedTires(rw){
+    if(rw === 15) return '20 – 27 mm';
+    if(rw === 16) return '20 – 34 mm';
+    if(rw === 17) return '20 – 57 mm';
+    if(rw >= 18 && rw <= 20) return '22 – 57 mm';
+    if(rw >= 21 && rw <= 22) return '25 – 65 mm';
+    if(rw === 23) return '28 – 65 mm';
+    if(rw >= 24 && rw <= 25) return '29 – 71 mm';
+    if(rw >= 26 && rw <= 27) return '35 – 71 mm';
+    if(rw >= 28 && rw <= 30) return '47 – 83 mm';
+    if(rw >= 31 && rw <= 35) return '58 – 83 mm';
+    if(rw >= 36 && rw <= 40) return '66 – 83 mm';
+    if(rw >= 41 && rw <= 43) return '66 – 95 mm';
+    if(rw >= 44 && rw <= 53) return '72 – 95 mm';
+    return 'Brak danych';
+  }
+
+  function getRecommendedTires(rw, type){
+    if(type === 'road'){
+      if(rw >= 15 && rw <= 17) return {text:'23 – 28 mm', estimated:false};
+      if(rw === 18) return {text:'25 – 28 mm', estimated:false};
+      if(rw >= 19 && rw <= 24) return {text:'28 – 35 mm', estimated:false};
+      if(rw === 25) return {text:'30 – 38 mm', estimated:false};
+    }
+    if(type === 'gravel'){
+      if(rw >= 17 && rw <= 19) return {text:'28 – 38 mm', estimated:false};
+      if(rw >= 20 && rw <= 24) return {text:'30 – 50 mm', estimated:false};
+      if(rw >= 25 && rw <= 27) return {text:'42 – 50 mm', estimated:false};
+      if(rw >= 28 && rw <= 30) return {text:'47 – 55 mm', estimated:false};
+    }
+    if(type === 'mtb'){
+      if(rw === 19) return {text:'47 – 52 mm', estimated:false};
+      if(rw >= 20 && rw <= 24) return {text:'47 – 54 mm', estimated:false};
+      if(rw === 25) return {text:'47 – 60 mm', estimated:false};
+      if(rw >= 26 && rw <= 28) return {text:'55 – 60 mm', estimated:false};
+      if(rw >= 29 && rw <= 34) return {text:'55 – 65 mm', estimated:false};
+      if(rw >= 35 && rw <= 40) return {text:'55 – 72 mm', estimated:false};
+      if(rw >= 41 && rw <= 45) return {text:'67 – 72 mm', estimated:false};
+    }
+    var tol = getToleratedTires(rw);
+    if(tol !== 'Brak danych'){
+      var m = tol.match(/(\d+)\s*[-–]\s*(\d+)/);
+      if(m){
+        var min = parseInt(m[1],10);
+        var max = parseInt(m[2],10);
+        var diff = max - min;
+        if(diff <= 4) return {text:tol, estimated:true};
+        var trim = Math.floor(diff * 0.25);
+        return {text:(min+trim)+' – '+(max-trim)+' mm', estimated:true};
+      }
+    }
+    return {text:'Brak danych', estimated:true};
+  }
+
+  function getAdvice(rw, type){
+    if(type === 'road'){
+      if(rw <= 17) return 'Zalecana węższa opona (lepsza aerodynamika), kosztem niższego komfortu.';
+      if(rw >= 18 && rw <= 20) return 'Uniwersalny wybór. Optymalny balans między aerodynamiką a komfortem.';
+      if(rw >= 21) return 'Sugerowana szersza opona. Maksymalny komfort i lepsza przyczepność na nierównościach.';
+    }
+    if(type === 'gravel'){
+      if(rw <= 20) return 'Dobre dla węższych opon na lekkie szutry. Mniejsze opory toczenia.';
+      if(rw >= 21 && rw <= 24) return 'Optymalne rozwiązanie na większość tras gravelowych. Świetny kompromis.';
+      if(rw >= 25) return 'Maksymalna trakcja i przyczepność w trudnym terenie. Dla szerokich opon.';
+    }
+    if(type === 'mtb'){
+      if(rw <= 28) return 'Dobre do XC / Maratonu. Niższa waga całego koła, mniejsze opory toczenia.';
+      if(rw >= 29 && rw <= 32) return 'Świetny wybór Trail / AM. Dobre podparcie opony podczas jazdy w zakrętach.';
+      if(rw >= 33) return 'Maksymalna stabilność przy oponach o dużej objętości (Enduro / Plus).';
+    }
+    return '';
+  }
+
+  var categoryRanges = {
+    road:{min:15,max:25,def:19},
+    gravel:{min:17,max:30,def:23},
+    mtb:{min:25,max:35,def:30}
+  };
+  var categoryTireRanges = {
+    road:{min:20,max:40,def:28},
+    gravel:{min:30,max:55,def:40},
+    mtb:{min:45,max:75,def:60}
+  };
+
+  function getCompatibleRims(tw, type){
+    var tol = [], rec = [];
+    for(var r=15; r<=53; r++){
+      var tolText = getToleratedTires(r);
+      var tolR = parseRange(tolText);
+      if(tolR && tw >= tolR[0] && tw <= tolR[1]) tol.push(r);
+      var recData = getRecommendedTires(r, type);
+      var recR = parseRange(recData.text);
+      if(recR && tw >= recR[0] && tw <= recR[1]) rec.push(r);
+    }
+    function fmt(arr){
+      if(arr.length === 0) return 'Brak danych';
+      var mn = Math.min.apply(null, arr);
+      var mx = Math.max.apply(null, arr);
+      return mn === mx ? mn+' mm' : mn+' – '+mx+' mm';
+    }
+    return {tolerated: fmt(tol), recommended: fmt(rec)};
+  }
+
+  // State
+  var state = {
+    activeType: 'road',
+    calcMode: 'rimToTire',
+    selectedRim: categoryRanges.road.def,
+    selectedTire: categoryTireRanges.road.def,
+    tireUnit: 'mm'
+  };
+
+  // DOM refs
+  var tabs = document.querySelectorAll('.ke-tab');
+  var modes = document.querySelectorAll('.ke-mode-btn');
+  var range = document.getElementById('ke-range');
+  var sliderVal = document.getElementById('ke-slider-value');
+  var sliderUnit = document.getElementById('ke-slider-unit');
+  var sliderLabel = document.getElementById('ke-slider-label');
+  var scaleMin = document.getElementById('ke-scale-min');
+  var scaleMax = document.getElementById('ke-scale-max');
+  var minusBtn = document.getElementById('ke-minus');
+  var plusBtn = document.getElementById('ke-plus');
+  var unitWrap = document.getElementById('ke-unit-wrap');
+  var unitBtns = document.querySelectorAll('.ke-unit-btn');
+  var tolTitle = document.getElementById('ke-tol-title');
+  var tolValue = document.getElementById('ke-tol-value');
+  var recTitle = document.getElementById('ke-rec-title');
+  var recSub = document.getElementById('ke-rec-sub');
+  var recValue = document.getElementById('ke-rec-value');
+  var advice = document.getElementById('ke-advice');
+  var adviceText = document.getElementById('ke-advice-text');
+  var chart = document.getElementById('ke-chart');
+  var bars = document.getElementById('ke-bars');
+  var chartMin = document.getElementById('ke-chart-min');
+  var chartMax = document.getElementById('ke-chart-max');
+
+  function formatTireWidth(text){
+    if(state.activeType !== 'mtb' || state.tireUnit === 'mm') return text;
+    return text.replace(/(\d+)\s*[-–]\s*(\d+)\s*mm/, function(_, p1, p2){
+      var mn = (Math.round((parseInt(p1,10)/25.4)*20)/20).toFixed(2);
+      var mx = (Math.round((parseInt(p2,10)/25.4)*20)/20).toFixed(2);
+      return mn+'" – '+mx+'"';
+    }).replace(/(\d+)\s*mm/, function(_, p1){
+      return (Math.round((parseInt(p1,10)/25.4)*20)/20).toFixed(2)+'"';
+    });
+  }
+
+  function currentRange(){
+    return state.calcMode === 'rimToTire' ? categoryRanges[state.activeType] : categoryTireRanges[state.activeType];
+  }
+  function currentValue(){
+    return state.calcMode === 'rimToTire' ? state.selectedRim : state.selectedTire;
+  }
+  function setCurrentValue(v){
+    if(state.calcMode === 'rimToTire') state.selectedRim = v;
+    else state.selectedTire = v;
+  }
+
+  function render(){
+    var r = currentRange();
+    range.min = r.min;
+    range.max = r.max;
+    range.value = currentValue();
+
+    scaleMin.textContent = r.min+' mm';
+    scaleMax.textContent = r.max+' mm';
+
+    if(state.calcMode === 'rimToTire'){
+      sliderLabel.textContent = 'Szerokość wewnętrzna obręczy';
+      sliderVal.textContent = state.selectedRim;
+      sliderUnit.textContent = 'mm';
+      tolTitle.textContent = 'Dopuszczalne (ETRTO)';
+      recTitle.textContent = 'Rekomendowane';
+    } else {
+      sliderLabel.textContent = 'Szerokość opony';
+      var showIn = state.activeType === 'mtb' && state.tireUnit === 'in';
+      if(showIn){
+        var v = (Math.round((state.selectedTire/25.4)*20)/20).toFixed(2);
+        sliderVal.textContent = v;
+        sliderUnit.textContent = '"';
+      } else {
+        sliderVal.textContent = state.selectedTire;
+        sliderUnit.textContent = 'mm';
+      }
+      tolTitle.textContent = 'Bezpieczne obręcze';
+      recTitle.textContent = 'Rekomendowane obręcze';
+    }
+
+    unitWrap.style.display = state.activeType === 'mtb' ? '' : 'none';
+
+    // Compute results
+    var tolText = '', recText = '', recEst = false, tolRange = null, recRange = null;
+    if(state.calcMode === 'rimToTire'){
+      var recData = getRecommendedTires(state.selectedRim, state.activeType);
+      tolText = getToleratedTires(state.selectedRim);
+      recText = recData.text;
+      recEst = recData.estimated;
+      tolRange = parseRange(tolText);
+      recRange = parseRange(recText);
+      tolValue.textContent = formatTireWidth(tolText);
+      recValue.textContent = formatTireWidth(recText);
+      recSub.textContent = recEst ? 'Szacowany optymalny profil' : 'Optymalny profil dla osiągów';
+      var adv = getAdvice(state.selectedRim, state.activeType);
+      if(adv){
+        advice.style.display = '';
+        adviceText.textContent = adv;
+      } else {
+        advice.style.display = 'none';
+      }
+    } else {
+      var rimsData = getCompatibleRims(state.selectedTire, state.activeType);
+      tolText = rimsData.tolerated;
+      recText = rimsData.recommended;
+      tolRange = parseRange(tolText);
+      recRange = parseRange(recText);
+      tolValue.textContent = tolText;
+      recValue.textContent = recText;
+      recSub.textContent = 'Najlepsze właściwości jezdne';
+      advice.style.display = 'none';
+    }
+
+    // Buttons enable/disable
+    minusBtn.disabled = currentValue() <= r.min;
+    plusBtn.disabled = currentValue() >= r.max;
+
+    // Chart
+    renderChart(tolRange, recRange);
+  }
+
+  function renderChart(tolRange, recRange){
+    if(!tolRange && !recRange){
+      chart.style.display = 'none';
+      return;
+    }
+    chart.style.display = '';
+
+    var domainMin = tolRange ? Math.max(0, tolRange[0] - 5) : (recRange[0] - 5);
+    var domainMax = tolRange ? tolRange[1] + 5 : (recRange[1] + 5);
+    if(recRange){
+      domainMin = Math.min(domainMin, Math.max(0, recRange[0] - 2));
+      domainMax = Math.max(domainMax, recRange[1] + 2);
+    }
+    var span = domainMax - domainMin;
+    if(span <= 0) span = 1;
+
+    function pos(v){ return ((v - domainMin)/span) * 100; }
+
+    var rows = [];
+    if(tolRange){
+      var label = state.calcMode === 'rimToTire' ? 'ETRTO' : 'Bezpieczne';
+      var left = pos(tolRange[0]);
+      var right = pos(tolRange[1]);
+      var width = Math.max(right-left, 3);
+      var valText = state.calcMode === 'rimToTire' ? formatTireWidth(tolRange[0]+' – '+tolRange[1]+' mm') : (tolRange[0]+' – '+tolRange[1]+' mm');
+      rows.push('<div class="ke-bar-row"><div class="ke-bar-name">'+label+'</div><div class="ke-bar-track"><div class="ke-bar-fill ke-bar-tolerated" style="left:'+left.toFixed(1)+'%;width:'+width.toFixed(1)+'%"></div></div><div class="ke-bar-value">'+valText+'</div></div>');
+    }
+    if(recRange){
+      var left2 = pos(recRange[0]);
+      var right2 = pos(recRange[1]);
+      var width2 = Math.max(right2-left2, 3);
+      var valText2 = state.calcMode === 'rimToTire' ? formatTireWidth(recRange[0]+' – '+recRange[1]+' mm') : (recRange[0]+' – '+recRange[1]+' mm');
+      rows.push('<div class="ke-bar-row"><div class="ke-bar-name">Optymalne</div><div class="ke-bar-track"><div class="ke-bar-fill ke-bar-recommended" style="left:'+left2.toFixed(1)+'%;width:'+width2.toFixed(1)+'%"></div></div><div class="ke-bar-value">'+valText2+'</div></div>');
+    }
+    bars.innerHTML = rows.join('');
+    if(state.calcMode === 'rimToTire'){
+      chartMin.textContent = 'Węższe opony';
+      chartMax.textContent = 'Szersze opony';
+    } else {
+      chartMin.textContent = 'Węższe obręcze';
+      chartMax.textContent = 'Szersze obręcze';
+    }
+  }
+
+  // Event handlers
+  tabs.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      state.activeType = btn.dataset.type;
+      tabs.forEach(function(b){ b.classList.toggle('active', b === btn); });
+      // Clamp values
+      var rr = categoryRanges[state.activeType];
+      if(state.selectedRim < rr.min) state.selectedRim = rr.min;
+      else if(state.selectedRim > rr.max) state.selectedRim = rr.max;
+      var tr = categoryTireRanges[state.activeType];
+      if(state.selectedTire < tr.min) state.selectedTire = tr.min;
+      else if(state.selectedTire > tr.max) state.selectedTire = tr.max;
+      render();
+    });
+  });
+
+  modes.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      state.calcMode = btn.dataset.mode;
+      modes.forEach(function(b){ b.classList.toggle('active', b === btn); });
+      render();
+    });
+  });
+
+  range.addEventListener('input', function(){
+    setCurrentValue(parseInt(range.value, 10));
+    render();
+  });
+
+  minusBtn.addEventListener('click', function(){
+    var r = currentRange();
+    var v = currentValue();
+    if(v > r.min){ setCurrentValue(v-1); render(); }
+  });
+  plusBtn.addEventListener('click', function(){
+    var r = currentRange();
+    var v = currentValue();
+    if(v < r.max){ setCurrentValue(v+1); render(); }
+  });
+
+  unitBtns.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      state.tireUnit = btn.dataset.unit;
+      unitBtns.forEach(function(b){ b.classList.toggle('active', b === btn); });
+      render();
+    });
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
