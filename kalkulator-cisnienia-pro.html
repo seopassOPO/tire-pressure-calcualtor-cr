@@ -103,17 +103,18 @@ main.kc-app{
   left:50%;
   transform:translateX(-50%);
   margin-bottom:8px;
-  width:200px;
-  padding:8px;
+  width:220px;
+  max-width:calc(100vw - 24px);
+  padding:8px 10px;
   background:#1e293b;
   color:#fff;
-  font-size:11px;
+  font-size:12px;
   font-weight:400;
   text-transform:none;
   letter-spacing:0;
-  border-radius:4px;
-  box-shadow:0 4px 12px rgba(0,0,0,.2);
-  z-index:20;
+  border-radius:6px;
+  box-shadow:0 6px 20px rgba(0,0,0,.25);
+  z-index:9999;
   text-align:center;
   line-height:1.5;
   display:none;
@@ -124,10 +125,33 @@ main.kc-app{
   position:absolute;
   top:100%;left:50%;
   transform:translateX(-50%);
-  border:4px solid transparent;
+  border:5px solid transparent;
   border-top-color:#1e293b;
 }
-.kc-label-wrap:hover .kc-tooltip{display:block}
+.kc-label-wrap:hover .kc-tooltip,
+.kc-label-wrap:focus-within .kc-tooltip{display:block}
+.kc-help{outline:none}
+.kc-help:focus-visible{opacity:1;box-shadow:0 0 0 2px #009ce0;border-radius:50%}
+
+@media (max-width: 720px){
+  .kc-tooltip{
+    position:fixed;
+    left:12px !important;
+    right:12px !important;
+    bottom:16px !important;
+    top:auto !important;
+    transform:none !important;
+    width:auto !important;
+    max-width:none !important;
+    margin:0 !important;
+    padding:14px 16px !important;
+    font-size:13px !important;
+    line-height:1.55 !important;
+    border-radius:12px !important;
+    box-shadow:0 -6px 24px rgba(0,0,0,.28) !important;
+  }
+  .kc-tooltip::after{display:none !important}
+}
 
 /* Inputs */
 .kc-in-wrap{position:relative}
@@ -1289,6 +1313,21 @@ input[type=number]{-moz-appearance:textfield}
     form.wheelSizeRear.value = 27.5;
     onBikeTypeChange();
   });
+
+  // Make help icons keyboard/touch accessible so tooltips open on tap
+  document.querySelectorAll('.kc-help').forEach(function(el){
+    el.setAttribute('tabindex','0');
+    el.setAttribute('role','button');
+    el.setAttribute('aria-label','Więcej informacji');
+  });
+
+  // Tap-anywhere-to-dismiss tooltip on mobile
+  document.addEventListener('touchstart', function(e){
+    if(!e.target.closest('.kc-label-wrap')){
+      var focused = document.querySelector('.kc-label-wrap :focus');
+      if(focused) focused.blur();
+    }
+  }, {passive:true});
 
   // Init
   onBikeTypeChange();
