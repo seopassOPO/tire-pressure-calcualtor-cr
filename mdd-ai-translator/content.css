@@ -1,0 +1,139 @@
+#mdd-ai-panel {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 999999;
+  width: 320px;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  color: #1f2937;
+  overflow: hidden;
+}
+#mdd-ai-panel.mdd-ai-collapsed .mdd-ai-body { display: none; }
+
+#mdd-ai-panel .mdd-ai-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: linear-gradient(135deg, #1e40af, #2563eb);
+  color: #fff;
+}
+#mdd-ai-panel .mdd-ai-title { font-weight: 600; font-size: 13px; }
+#mdd-ai-panel .mdd-ai-toggle {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+#mdd-ai-panel .mdd-ai-toggle:hover { background: rgba(255,255,255,0.28); }
+
+#mdd-ai-panel .mdd-ai-body { padding: 12px; }
+#mdd-ai-panel .mdd-ai-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+#mdd-ai-panel .mdd-ai-col { flex-direction: column; align-items: stretch; gap: 6px; }
+#mdd-ai-panel .mdd-ai-label { font-size: 12px; font-weight: 600; color: #374151; }
+#mdd-ai-panel select {
+  padding: 5px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 12px;
+  color: #1f2937;
+  flex: 1;
+}
+#mdd-ai-panel .mdd-ai-langs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+#mdd-ai-panel .mdd-ai-lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+  background: #f9fafb;
+  cursor: pointer;
+  font-size: 12px;
+  user-select: none;
+}
+#mdd-ai-panel .mdd-ai-lang input { margin: 0; }
+#mdd-ai-panel .mdd-ai-lang input:checked + span { color: #1e40af; font-weight: 600; }
+
+#mdd-ai-panel .mdd-ai-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+#mdd-ai-panel .mdd-ai-btn {
+  flex: 1;
+  padding: 8px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 12px;
+}
+#mdd-ai-panel .mdd-ai-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+#mdd-ai-panel .mdd-ai-primary { background: #2563eb; color: #fff; }
+#mdd-ai-panel .mdd-ai-primary:hover { background: #1d4ed8; }
+#mdd-ai-panel .mdd-ai-secondary { background: #f3f4f6; color: #1f2937; border: 1px solid #d1d5db; }
+#mdd-ai-panel .mdd-ai-secondary:hover { background: #e5e7eb; }
+
+#mdd-ai-panel .mdd-ai-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+#mdd-ai-panel .mdd-ai-progress-track {
+  flex: 1;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+#mdd-ai-panel #mdd-ai-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #2563eb, #22c55e);
+  transition: width 0.25s ease;
+}
+#mdd-ai-panel #mdd-ai-progress-label {
+  font-size: 11px;
+  color: #6b7280;
+  min-width: 30px;
+  text-align: right;
+}
+#mdd-ai-panel .mdd-ai-status {
+  min-height: 16px;
+  font-size: 12px;
+  margin: 8px 0 0;
+}
+#mdd-ai-panel .mdd-ai-status.success { color: #047857; }
+#mdd-ai-panel .mdd-ai-status.error { color: #b91c1c; }
+#mdd-ai-panel .mdd-ai-status.info { color: #2563eb; }
+#mdd-ai-panel .mdd-ai-hint {
+  margin: 8px 0 0;
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.mdd-ai-hl-busy { outline: 2px dashed #2563eb !important; outline-offset: 2px; transition: outline 0.2s; }
+.mdd-ai-hl-ok   { outline: 2px solid #22c55e !important; outline-offset: 2px; transition: outline 0.2s; }
+.mdd-ai-hl-error{ outline: 2px solid #ef4444 !important; outline-offset: 2px; transition: outline 0.2s; }

@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "MDD AI Translator",
+  "version": "1.0.0",
+  "description": "Inteligentne tłumaczenie opisów kategorii w panelu MDD z użyciem klucza API OpenAI.",
+  "permissions": ["storage", "scripting", "activeTab"],
+  "host_permissions": [
+    "https://*.mdd.pl/*",
+    "https://api.openai.com/*"
+  ],
+  "action": {
+    "default_title": "MDD AI Translator",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.mdd.pl/dashboard*",
+        "https://*.mdd.pl/dashboard-new/*",
+        "https://devconfigurator.mdd.pl/*",
+        "https://configurator.mdd.pl/*"
+      ],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}

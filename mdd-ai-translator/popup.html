@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>MDD AI Translator</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <h1>MDD AI Translator</h1>
+    <p class="subtitle">Inteligentne tłumaczenie opisów kategorii</p>
+  </header>
+
+  <section>
+    <label for="apiKey">Klucz API OpenAI</label>
+    <input id="apiKey" type="password" placeholder="sk-..." autocomplete="off">
+    <p class="hint">Pobierz z <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com/api-keys</a>. Klucz jest przechowywany tylko lokalnie w Twojej przeglądarce.</p>
+  </section>
+
+  <section>
+    <label for="model">Model</label>
+    <select id="model">
+      <option value="gpt-4o-mini">gpt-4o-mini (tani, szybki, dobra jakość)</option>
+      <option value="gpt-4o">gpt-4o (najlepsza jakość)</option>
+      <option value="gpt-4.1">gpt-4.1 (najnowszy, wysoka jakość)</option>
+      <option value="gpt-4.1-mini">gpt-4.1-mini (kompromis cena/jakość)</option>
+    </select>
+  </section>
+
+  <section>
+    <label for="sourceLang">Język źródłowy</label>
+    <select id="sourceLang">
+      <option value="pl">Polski (pl)</option>
+      <option value="en">Angielski (en)</option>
+      <option value="de">Niemiecki (de)</option>
+    </select>
+  </section>
+
+  <section>
+    <label for="tone">Styl / ton</label>
+    <select id="tone">
+      <option value="marketing">Marketingowy – opis produktu</option>
+      <option value="neutral">Neutralny, formalny</option>
+      <option value="seo">SEO – zwięzły, ze słowami kluczowymi</option>
+      <option value="technical">Techniczny, precyzyjny</option>
+    </select>
+  </section>
+
+  <section>
+    <label for="brief">Dodatkowe wytyczne (opcjonalnie)</label>
+    <textarea id="brief" rows="3" placeholder="np. używaj terminologii z branży mebli biurowych, unikaj potocznych zwrotów, marka MDD nie jest tłumaczona"></textarea>
+  </section>
+
+  <section class="row">
+    <label class="checkbox">
+      <input id="preserveHtml" type="checkbox" checked>
+      Zachowaj formatowanie HTML (TinyMCE)
+    </label>
+    <label class="checkbox">
+      <input id="skipFilled" type="checkbox" checked>
+      Pomiń pola już wypełnione
+    </label>
+  </section>
+
+  <footer>
+    <button id="save" class="primary">Zapisz ustawienia</button>
+    <button id="test" class="secondary">Testuj klucz API</button>
+    <p id="status" class="status"></p>
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>
